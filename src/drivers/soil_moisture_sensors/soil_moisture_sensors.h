@@ -25,14 +25,14 @@
  *  - Turn on ADC1 after calibration (ADC_CR2_ADON)
  * 5. Configure ADC1 for single conversion mode:
  *  - Set regular sequence length to 1 (ADC_SQR1 = 0)
- *  - Set the first conversion in regular sequence to channel 4 (ADC_SQR3 = 4)
- * 6. Set sample time for channel 4 to 239.5 cycles (ADC_SMPR2)
+ *  - Set the first conversion in regular sequence to channel x (ADC_SQR3 = x)
+ * 6. Set sample time for channel x to 239.5 cycles (ADC_SMPR2)
  */
-void adc_init(void);
+void adc_init_pin(uint8_t pin);
 
 /**
  * @brief Read the ADC value from the soil moisture sensor.
- * This function starts an ADC conversion on channel 4 (PA4) and returns the digital value.
+ * This function starts an ADC conversion on channel x (PAx) and returns the digital value.
  * This function performs the following steps:
  * 1. Ensure ADC1 is enabled (ADC_CR2_ADON)
  * 2. Wait for ADC to stabilize
@@ -41,6 +41,6 @@ void adc_init(void);
  * 5. Return the converted digital value from ADC1 data register (ADC_DR)
  * @return uint16_t The digital value read from the ADC.
  */
-uint16_t adc_read(void);
+uint16_t adc_read(uint8_t channel);
 
 #endif
