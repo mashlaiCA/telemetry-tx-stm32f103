@@ -1,5 +1,5 @@
-#ifndef GPIOA_H
-#define GPIOA_H
+#ifndef GPIO_H
+#define GPIO_H
 
 #include "stdint.h"
 
@@ -13,7 +13,12 @@
 /** @brief Initialize GPIOA peripheral clock.
  *  This function enables the GPIOA clock in the RCC APB2ENR register.
  */
-void gpio_a_init(void);
+void gpio_A_init(void);
+
+void gpio_B_init(void);
+
+void gpio_B_init_I2C_SDA_SCL(uint8_t pin);
+
 
 /** @brief Initialize GPIOA pin as analog input.
  *   This function performs the following steps:

@@ -3,5 +3,5 @@
 
 void pins_init(void)
 {
-    gpio_a_init(); // Initialize GPIOA peripheral
+    gpio_A_init(); // Initialize GPIOA peripheral
 }

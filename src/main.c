@@ -3,13 +3,27 @@
 #include "devices/led_light_bulb/led_light_bulb.h"
 #include "application/uart/uart.h"
 #include "application/time/scheduler.h"
+#include "drivers/I2C/i2c.h"
+#include "drivers/gpio/gpio.h"
 
 
 uint16_t count = 100; // Counter for readings
 
+uint8_t cmd[2] = {0x24, 0x00};
+uint8_t rx[6];
+
 int main(void)// Main function
 {
-    pins_init(); // Initialize board pins
+    gpio_B_init();
+    gpio_B_init_I2C_SDA_SCL(6);//SCL
+    gpio_B_init_I2C_SDA_SCL(7);//SDA
+
+    I2C_init();
+    I2C_interrupts_init();
+    I2C_StartWrite(&i2c_ctx, 0x44, cmd, 2);
+
+   /*pins_init(); // Initialize board pins
+
     uart_init(); // Initialize UART
     scheduler_init(2000); // Initialize scheduler
     analog_sensor_soil_moisture_init(3); // Initialize soil moisture sensor on PA3/ADC1 channel 3
@@ -18,10 +32,18 @@ int main(void)// Main function
     led_light_init(2); // Initialize LED light bulb on PA6
      led_ON(1); 
      led_ON(2); 
-
+*/
     while (1)// Main loop
     {
-       scheduler_tick();// Update scheduler (timer)
+      if(i2c_ctx.state == I2C_IDLE)
+        {
+
+            I2C_StartRead(&i2c_ctx, 0x44, rx, 6);
+           
+            
+            
+        }
+      /* scheduler_tick();// Update scheduler (timer)
 
      if (scheduler_delay_ms(2000)) 
        {
@@ -39,6 +61,10 @@ int main(void)// Main function
             uart_send_uint16_t(adc_value4); 
             uart_send_string("\r\n"); 
             led_ON(2);
-        }
+        }*/
+
+
     }
+
+    
 }
