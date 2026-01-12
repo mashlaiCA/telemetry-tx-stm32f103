@@ -5,7 +5,8 @@ I2C_Context i2c_ctx;
 
 void I2C_init(void)
 {
-
+    RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+    
     I2C1->CR1 |= I2C_CR1_SWRST;
     I2C1->CR1 &= ~I2C_CR1_SWRST;
 

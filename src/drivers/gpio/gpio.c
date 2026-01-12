@@ -7,10 +7,9 @@ void gpio_A_init(void){
 }
 
 void gpio_B_init(void){
-    RCC->APB2ENR |= RCC_APB2ENR_IOPBEN; 
-    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
-    RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+RCC->APB2ENR |= RCC_APB2ENR_IOPBEN; 
 }
+
 
 void gpio_B_init_I2C_SDA_SCL(uint8_t pin){
     GPIOB->CRL &= ~(0xF << (pin * 4)); 
