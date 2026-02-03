@@ -29,6 +29,4 @@ void uart_hw_init(void);
  */
 void uart_hw_send_byte(uint8_t byte);
 
-
-
 #endif

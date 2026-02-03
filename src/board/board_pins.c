@@ -1,5 +1,5 @@
 #include "board_pins.h"
-#include "drivers/gpio/gpio.h"
+#include "drivers/gpio/gpio_hw.h"
 
 
 void pins_init(void)

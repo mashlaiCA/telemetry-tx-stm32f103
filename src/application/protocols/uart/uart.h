@@ -17,4 +17,9 @@ void uart_send_string(const char *str);
  */
 void uart_send_uint16_t(uint16_t value);
 
+void uart_send_uint16_t2(uint16_t value1, 
+                        uint16_t value2, 
+                        uint16_t value3, 
+                        uint16_t value4);
+
 #endif // UART_H    

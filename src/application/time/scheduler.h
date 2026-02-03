@@ -9,11 +9,11 @@
  * and check for elapsed time intervals using TIM2 peripheral.
  */
 
- /**
-  * @brief Initialize the scheduler with specified time interval.
-  * This function initializes TIM2 peripheral for system timekeeping.
-  * @param time_scheduler_ms Time interval in milliseconds for the scheduler tick.
-  */
+/**
+ * @brief Initialize the scheduler with specified time interval.
+ * This function initializes TIM2 peripheral for system timekeeping.
+ * @param time_scheduler_ms Time interval in milliseconds for the scheduler tick.
+ */
 void scheduler_init(uint32_t time_scheduler_ms);
 
 /**
@@ -23,7 +23,7 @@ void scheduler_init(uint32_t time_scheduler_ms);
  */
 void scheduler_tick(void);
 
-/** 
+/**
  * @brief Check if the specified time interval has elapsed.
  * This function compares the current system time with the provided time interval.
  * if the interval has elapsed, it returns 1 (true); otherwise, it returns 0 (false).
@@ -31,6 +31,5 @@ void scheduler_tick(void);
  * @return uint8_t Returns 1 if the specified time interval has elapsed, 0 otherwise.
  */
 uint8_t scheduler_delay_ms(uint32_t time_ms);
-
 
 #endif

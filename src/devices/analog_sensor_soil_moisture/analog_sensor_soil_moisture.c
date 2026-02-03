@@ -1,6 +1,6 @@
 #include "analog_sensor_soil_moisture.h"
 #include "drivers/acd1/acd1.h"
-#include "drivers/gpio/gpio.h"
+#include "drivers/gpio/gpio_hw.h"
 
 void analog_sensor_soil_moisture_init(uint8_t sensor_gpio)
 {

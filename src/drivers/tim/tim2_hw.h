@@ -2,13 +2,24 @@
 #define TIM2_H
 
 #include "stdint.h"
+
+extern volatile uint32_t sys_ms; // System milliseconds counter
+
 /**
  * @file tim2.h
  * @brief Driver for TIM2 timer on STM32F103xx microcontroller.
  * This module provides functions to initialize TIM2 for system timekeeping,
  * update the system time, and check for elapsed time intervals.
  */
-extern volatile uint32_t sys_ms; // System milliseconds counter
+
+ 
+ /** @brief Blocking delay for a specified number of milliseconds.
+  * This function uses the SysTick timer to create a blocking delay.
+  * @param ms The number of milliseconds to delay. 
+ */
+//void delay_ms(uint32_t ms);
+
+
 
 /**
  * @brief Initialize TIM2 for system timekeeping.
@@ -20,7 +31,6 @@ extern volatile uint32_t sys_ms; // System milliseconds counter
  * 5. Enable the TIM2 counter.
  * @param time_ms The time interval in milliseconds for the timer.
  */
-
 void timer_init(uint32_t time_ms);
 
 /**
@@ -28,7 +38,5 @@ void timer_init(uint32_t time_ms);
  * This function updates the system milliseconds counter sys_ms with the current
  */
 void timer_tick(void);
-
-
 
 #endif
