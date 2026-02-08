@@ -1,6 +1,5 @@
 #include "stm32f103xb.h"
 #include "i2c_hw.h"
-//#include "../tim/tim2_hw.h"
 #include "../timeout_hw/timeout_hw.h"
 
 uint8_t APB1_MHZ = 8; //8MHz
@@ -163,3 +162,4 @@ I2C_Status_t I2C_Read(uint8_t addr, uint8_t *data, uint8_t len) // Read data fro
 
     return i2c_ok; // Return success status
 }
+

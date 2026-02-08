@@ -1,7 +1,9 @@
 #ifndef SHT35_H
 #define SHT35_H
 
-#include <stdint.h>
+#include "stdint.h"
+#include "sht35_status.h"
+
 
 /**
  * @file sht35.h
@@ -9,14 +11,7 @@
  * This module provides functions to interface with the SHT35 temperature and humidity sensor.
  */
 
-typedef enum {
-    sht35_ok = 0,
-    sht35_error_crc,
-    sht35_calc_out_of_range,
-    sht35_error_calculation,
-} SHT35_Status_t;
 
-extern SHT35_Status_t sht35_status; // Global variable to hold the last SHT35 error status
 extern uint16_t temperature; // Temperature in hundredths of degrees Celsius
 extern uint16_t humidity; // Humidity in hundredths of percent
 extern uint8_t buf[6]; // Data buffer
@@ -33,9 +28,24 @@ extern uint8_t buf[6]; // Data buffer
 uint8_t SHT35_CRC8(uint8_t *data, uint8_t len);
 
 
+/**
+ * @brief Check the CRC of the received SHT35 data.
+ * This function verifies the integrity of the temperature and humidity data received from
+ * the SHT35 sensor by checking their CRC values. If the CRC check passes, it extracts
+ * the raw temperature and humidity values from the data buffer.
+ *
+ * @return SHT35_Status_t Status of the CRC check operation.
+ */
 SHT35_Status_t SHT35_CRC_Check(void);
 
-
+/**
+ * @brief Calculate temperature and humidity from raw SHT35 data.
+ * This function converts the raw temperature and humidity values obtained from the SHT35
+ * sensor into human-readable formats (Celsius and percent). It also checks if the
+ * calculated values are within valid ranges.
+ *
+ * @return SHT35_Status_t Status of the calculation operation.
+ */
 SHT35_Status_t SHT35_Calculate(void);
 
 #endif 

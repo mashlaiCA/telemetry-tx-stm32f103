@@ -1,4 +1,5 @@
 #include "sht35.h"
+#include "sht35_status.h"
 #include "drivers/I2C/i2c_hw.h"
 #include "drivers/tim/tim2_hw.h"
 
@@ -47,11 +48,11 @@ SHT35_Status_t SHT35_Calculate(void)
     temperature = -45.0f + 175.0f * ((float)rawT / 65535.0f); // Calculate temperature in Celsius
     humidity = 100.0f * ((float)rawRH / 65535.0f);            // Calculate humidity in percent
 
-    if (temperature < -50.0f || temperature > 125.0f)
-        return sht35_calc_out_of_range;
+    if (temperature < -50.0f || temperature > 125.0f) // Check temperature range
+        return sht35_calc_out_of_range; // Invalid temperature
 
-    if (humidity < 0.0f || humidity > 100.0f)
-        return sht35_calc_out_of_range;
+    if (humidity < 0.0f || humidity > 100.0f) // Check humidity range
+        return sht35_calc_out_of_range; // Invalid humidity
 
-    return sht35_ok;
+    return sht35_ok; // Successful calculation
 }

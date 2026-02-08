@@ -1,10 +1,12 @@
+#include "sht35_fsm.h"
+#include "application/errors/system_error.h"
 #include "sensor_sht35.h"
-#include "application/protocols/i2c/i2c.h"
-#include "drivers/sht35/sht35.h"
 #include "application/time/scheduler.h"
 
 #include "application/errors/i2c_errors.h"
 
+uint8_t sht_max_retry = 3;
+static uint8_t error_retry_count = 0;
 
 StateFunction_t state_table[st_count] = {
     State_Idle,
@@ -13,8 +15,8 @@ StateFunction_t state_table[st_count] = {
     State_Read_Data_Measurement,
     State_CRC_Check,
     State_Calculate_Data,
+    State_Restart_Sensor,
     State_Error};
-
 
 SHT35_State_t sht35_state = st_idle;
 
@@ -56,7 +58,6 @@ SHT35_State_t State_Read_Data_Measurement(void)
     return st_crc_check;
 }
 
-
 SHT35_State_t State_CRC_Check(void)
 {
     SHT35_CRC_Check();
@@ -77,12 +78,30 @@ SHT35_State_t State_Calculate_Data(void)
     return st_idle;
 }
 
+SHT35_State_t State_Restart_Sensor(void)
+{
+    I2C_Restart_Sensor_SHT35();
+
+    return st_idle;
+}
+
 SHT35_State_t State_Error(void)
 {
-    return st_idle;
+    error_retry_count++;
+    if (error_retry_count < sht_max_retry)
+    {
+        return st_restart_sensor;
+    }
+
+    set_system_error(system_error_sht35);
+    error_retry_count = 0;
+
+    get_system_error(); // For debugging purposes, read the system error to ensure it is set correctly
+
+        return st_disable;
 }
 
 void Sensor_FSM_Run(void)
 {
-   sht35_state = state_table[sht35_state]();
+    sht35_state = state_table[sht35_state]();
 }

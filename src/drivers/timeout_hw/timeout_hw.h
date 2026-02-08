@@ -15,8 +15,8 @@
   */
 typedef struct
 {
-    uint32_t start_ms;
-    uint32_t timeout_ms;
+    uint32_t start_ms; // Start time in milliseconds
+    uint32_t timeout_ms; // Timeout duration in milliseconds
 } timeout_t;
 
 /**
