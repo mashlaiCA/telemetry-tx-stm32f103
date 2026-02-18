@@ -21,6 +21,7 @@ void gpio_A_init(void);
  */
 void gpio_B_init(void);
 
+
 /** @brief Initialize GPIOB pin for I2C SDA and SCL.
  *   This function performs the following steps:
  *  1. Clear the CNF and MODE bits for the specified GPIOB pin.
@@ -38,6 +39,10 @@ void gpio_B_init_I2C_SDA_SCL(uint8_t pin);
  *  @param pin The GPIOA pin number (0-7) to configure as analog input.
  */
 void gpio_a_analog_input_init(uint8_t pin);
+
+void gpio_SPI_init();
+
+void lora_ctrl_gpio_init();
 
 /** @brief Initialize GPIOA pin as LED output.
  *   This function performs the following steps:
@@ -61,5 +66,7 @@ void gpio_a_set(uint8_t led_gpio);
  *  @param led_gpio The GPIOA pin number (0-7) connected to the LED.
  */
 void gpio_a_reset(uint8_t led_gpio);
+
+void reset_pin_1(void);
 
 #endif
