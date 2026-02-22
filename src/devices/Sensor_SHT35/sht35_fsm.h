@@ -111,6 +111,10 @@ SHT35_State_t State_Restart_Sensor(void);
  * It should be called periodically (e.g., in a main loop
  * or a scheduler) to allow the FSM to progress through its states and perform the necessary operations for the SHT35 sensor.
  */
-void Sensor_FSM_Run(void);
+//void Sensor_FSM_Run(void);
+
+void SHT35_FSM_Run(void);
+void SHT35_OnEnter(SHT35_State_t st);
+
 
 #endif

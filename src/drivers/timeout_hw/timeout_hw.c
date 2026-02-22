@@ -12,5 +12,5 @@ void timeout_start(timeout_t *t, uint32_t timeout_ms)
 // Check if the timeout has expired by comparing the elapsed time with the timeout duration
 uint8_t timeout_has_expired(timeout_t *t)
 {
-   return (sys_ms - t->start_ms) >= t->timeout_ms; // Check if the timeout has expired
+   return ((uint32_t)(sys_ms - t->start_ms) >= t->timeout_ms); // Check if the timeout has expired
 }

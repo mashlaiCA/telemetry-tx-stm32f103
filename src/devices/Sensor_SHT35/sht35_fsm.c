@@ -1,12 +1,17 @@
 #include "sht35_fsm.h"
 #include "application/errors/system_error.h"
 #include "sensor_sht35.h"
-#include "application/time/scheduler.h"
+#include "drivers/timeout_hw/timeout_hw.h"
+
 
 #include "application/errors/i2c_errors.h"
 
 uint8_t sht_max_retry = 3;            // Maximum number of retry attempts in case of errors
 static uint8_t error_retry_count = 0; // Counter for retry attempts in case of errors
+timeout_t sht35_timeout;  // Timeout structure for SHT35 operations
+uint8_t timeout_ms; // Timeout duration in milliseconds
+
+SHT35_State_t sht35_state = st_idle; // Initial state of the FSM
 
 StateFunction_t state_table[st_count] = {
     State_Idle,                  // function for idle state
@@ -19,13 +24,51 @@ StateFunction_t state_table[st_count] = {
     State_Error                  // function for handling errors
 };
 
-SHT35_State_t sht35_state = st_idle; // Initial state of the FSM
+typedef struct {
+
+SHT35_State_t state;
+SHT35_Status_t prev;
+
+timeout_t timer;
+} sht35_cxt_t;
+
+sht35_cxt_t sht35_context = {
+    .state = st_idle,
+    .prev = st_idle,
+    .timer = {0}
+};
+
+void SHT35_FSM_Run(void){
+    if(sht35_context.state != sht35_context.prev){
+        SHT35_OnEnter(sht35_context.state);
+        sht35_context.prev = sht35_context.state;
+    }
+   sht35_context.state = state_table[sht35_context.state]();
+}
+
+
+void SHT35_OnEnter(SHT35_State_t st){
+    switch (st)
+    {
+    case st_idle:
+        timeout_start(&sht35_context.timer, 50); // Start the timeout for 50 ms when entering the idle state
+        break;
+    
+    case st_wait_measurement:
+        timeout_start(&sht35_context.timer, 20); // Start the timeout for 20 ms when entering the wait measurement state
+        break;
+
+    default:
+        break;
+    }
+}
 
 SHT35_State_t State_Idle(void) // Idle state, waiting for trigger to start measurement
 {
-    if (scheduler_delay_ms(50)) // Wait for 50 ms before starting the next measurement cycle to ensure the sensor is ready
+
+    if (!timeout_has_expired(&sht35_context.timer)) // Wait for 50 ms before starting the next measurement cycle to ensure the sensor is ready
     {
-        return st_error; // If the delay fails, transition to the error state
+        return st_idle; // If the delay fails, transition to the idle state
     }
     return st_start_sensor; // Transition to the state for starting the sensor measurement
 }
@@ -42,9 +85,10 @@ SHT35_State_t State_Start_Sensor(void) // State for starting the sensor measurem
 
 SHT35_State_t State_Wait_Measurement(void) // State for waiting for the measurement to be ready
 {
-    if (scheduler_delay_ms(70)) // Wait for 70 ms before reading the data
+
+    if (!timeout_has_expired(&sht35_context.timer)) // Wait for 20 ms before reading the data
     {
-        return st_error; // If the delay fails, transition to the error state
+        return st_wait_measurement; // If the delay fails, transition to the error state
     }
     return st_read_data_measurement; // Transition to the state for reading data from the sensor
 }
@@ -104,7 +148,3 @@ SHT35_State_t State_Error(void) // State for handling errors
     return st_disable;// Transition to the state for disabling the sensor to prevent further attempts to communicate with a potentially faulty sensor
 }
 
-void Sensor_FSM_Run(void) // Run the state machine for the SHT35 sensor
-{
-    sht35_state = state_table[sht35_state]();// Call the function corresponding to the current state and update the state based on the return value of the function
-}

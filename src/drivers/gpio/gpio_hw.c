@@ -73,7 +73,7 @@ void gpio_a_reset(uint8_t led_gpio)
 
 void reset_pin_1(void){
     GPIOB->BRR = (1 << 1); // Set PA1 low
-    timeout_start(&lora_timeout, 100);
+    timeout_start(&lora_timeout, 10);
     while(!timeout_has_expired(&lora_timeout));
 
     GPIOB->BSRR = (1 << 1); // Set PA1 high

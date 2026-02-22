@@ -4,6 +4,7 @@
 
 #define SHT35_ADDR   0x44  // I2C address of the SHT35 sensor
 uint8_t cmd[2] = {0x24, 0x00}; // Command to start measurement (high repeatability, clock stretching disabled)
+uint8_t cmd_soft_reset[2] = {0x30, 0xA2}; // Command for soft reset of the SHT35 sensor
 
 
 
@@ -19,7 +20,7 @@ void I2C_Read_Sensor_SHT35() // Read raw data from sensor
 
 void I2C_Restart_Sensor_SHT35() // Restart sensor
 {
-    I2C_Write(SHT35_ADDR, 0x30, 0xA2); // Send soft reset command   
+    I2C_Write(SHT35_ADDR, cmd_soft_reset, 2); // Send soft reset command
 }
 
 

@@ -12,15 +12,6 @@ extern volatile uint32_t sys_ms; // System milliseconds counter
  * update the system time, and check for elapsed time intervals.
  */
 
- 
- /** @brief Blocking delay for a specified number of milliseconds.
-  * This function uses the SysTick timer to create a blocking delay.
-  * @param ms The number of milliseconds to delay. 
- */
-//void delay_ms(uint32_t ms);
-
-
-
 /**
  * @brief Initialize TIM2 for system timekeeping.
  * This function performs the following steps:
@@ -31,12 +22,5 @@ extern volatile uint32_t sys_ms; // System milliseconds counter
  * 5. Enable the TIM2 counter.
  * @param time_ms The time interval in milliseconds for the timer.
  */
-void timer_init(uint32_t time_ms);
-
-/**
- * @brief Start timer tick update.
- * This function updates the system milliseconds counter sys_ms with the current
- */
-void timer_tick(void);
-
+void timer_init(void);
 #endif
