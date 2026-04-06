@@ -3,15 +3,15 @@
 
 void uart_init(void)
 {
-    uart_hw_init();// Initialize hardware UART
+    uart_hw_init(); // Initialize hardware UART
 }
 
-void uart_send_string(const char *str) 
+void uart_send_string(const char *str)
 {
     while (*str != '\0') // Loop until null terminator
     {
-        uart_hw_send_byte((uint8_t)*str); // Send each character    
-        str++;// Move to next character                      
+        uart_hw_send_byte((uint8_t)*str); // Send each character
+        str++;                            // Move to next character
     }
 }
 
@@ -23,7 +23,7 @@ void uart_send_uint16_t(uint16_t value) // Send a uint16_t value over UART as a 
     if (value == 0) // Handle zero case
     {
         uart_hw_send_byte('0'); // Send '0' for zero value
-        return;              // Return early
+        return;                 // Return early
     }
     while (value > 0 && index < sizeof(buffer) - 1) // Convert value to string in reverse order
     {
@@ -36,33 +36,32 @@ void uart_send_uint16_t(uint16_t value) // Send a uint16_t value over UART as a 
     }
 }
 
-void uart_send_uint16_t2(uint16_t value1, 
-                        uint16_t value2, 
-                        uint16_t value3, 
-                        uint16_t value4) 
+void uart_send_uint16_t2(uint16_t value1,
+                         uint16_t value2,
+                         uint16_t value3,
+                         uint16_t value4)
 {
-    uint16_t values[4] = {value1, value2, value3, value4};
-    char buffer[24] = {0}; 
-    uint8_t len = 4;     
+    uint16_t values[4] = {value1, value2, value3, value4}; // Array of values to send
+    char buffer[24] = {0};                                 // Buffer to hold string representation of all values
+    uint8_t len = 4;                                       // Number of values to send
 
-    for(uint8_t i = 0; i < len; i++)
+    for (uint8_t i = 0; i < len; i++) // Loop through each value
     {
-        uint16_t value = values[i];
-        uint8_t index = 0;
+        uint16_t value = values[i]; // Get current value
+        uint8_t index = 0;          // Index for buffer
 
-        while (value > 0 && index < sizeof(buffer) - 1) 
+        while (value > 0 && index < sizeof(buffer) - 1) // Convert value to string in reverse order
         {
-            buffer[index++] = (value % 10) + '0';
-            value /= 10;
+            buffer[index++] = (value % 10) + '0'; // Get least significant digit and convert to character
+            value /= 10;                          // Remove least significant digit
         }
-        buffer[index++] = ' ';
+        buffer[index++] = ' '; // Add space separator between values
 
-        while (index > 0)
+        while (index > 0) // Send the string in correct order
         {
-            uart_hw_send_byte(buffer[--index]);
+            uart_hw_send_byte(buffer[--index]); // Send each character
         }
     }
-             
-             uart_hw_send_byte('\n');
-}
 
+    uart_hw_send_byte('\n'); // Send newline at the end of the line
+}

@@ -30,7 +30,21 @@ typedef enum
 
 extern System_Error_t system_error_flags; // Global variable to hold the current system error state
 
-void set_system_error(System_Error_t error); // Function prototype for setting the system error state
+/**
+ * @brief Set the system error state.
+ * This function sets the system error state to the specified error.
+ * It checks if there are no existing errors before setting the new error to avoid overwriting previous error states.
+ * This allows for better error tracking and debugging, as it preserves the first error that occurred in the system.
+ * @param error The error state to set.
+ */
+void set_system_error(System_Error_t error);
+
+/**
+ * @brief Get the current system error state.
+ * This function retrieves the current system error state. It allows other modules to check for errors
+ * and take appropriate actions based on the error status.
+ * @return The current system error state as System_Error_t value.
+ */
 System_Error_t get_system_error(void); // Function prototype for getting the current system error state
 
 #endif

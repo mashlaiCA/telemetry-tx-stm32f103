@@ -22,7 +22,6 @@
  */
 void adc1_init(void);
 
-
 /** @brief Read analog value from specified ADC1 channel.
  *   This function performs the following steps:
  *  1. Ensure ADC1 is enabled by setting the ADON bit in the ADC1 CR2 register.

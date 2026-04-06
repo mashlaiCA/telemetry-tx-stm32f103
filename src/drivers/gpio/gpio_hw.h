@@ -15,12 +15,10 @@
  */
 void gpio_A_init(void);
 
-
 /** @brief Initialize GPIOB peripheral clock.
  *  This function enables the GPIOB clock in the RCC APB2ENR register.
  */
 void gpio_B_init(void);
-
 
 /** @brief Initialize GPIOB pin for I2C SDA and SCL.
  *   This function performs the following steps:
@@ -30,7 +28,6 @@ void gpio_B_init(void);
  *  @param pin The GPIOB pin number (0-7) to configure for I2C SDA or SCL.
  */
 void gpio_B_init_I2C_SDA_SCL(uint8_t pin);
-
 
 /** @brief Initialize GPIOA pin as analog input.
  *   This function performs the following steps:
@@ -67,6 +64,6 @@ void gpio_a_set(uint8_t led_gpio);
  */
 void gpio_a_reset(uint8_t led_gpio);
 
-void reset_pin_1(void);
+// void reset_pin_1(void);
 
 #endif

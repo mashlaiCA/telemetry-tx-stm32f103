@@ -1,10 +1,9 @@
- #include "spi_LL.h"
- #include "stm32f1xx_ll_bus.h"
- #include "stm32f1xx_ll_spi.h"
- #include "../gpio/gpio_hw.h"
+#include "spi_LL.h"
+#include "stm32f1xx_ll_bus.h"
+#include "stm32f1xx_ll_spi.h"
 
- void spi_init()
- {
+void spi_init()
+{
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1); // Enable SPI1 clock
 
     LL_SPI_Disable(SPI1); // Disable SPI1 before configuration
@@ -26,13 +25,15 @@
     CLEAR_BIT(SPI1->CR1, SPI_CR1_LSBFIRST); // Set SPI1 to transmit MSB first
 
     LL_SPI_Enable(SPI1); // Enable SPI1 after configuration
- }
+}
 
- uint8_t spi_transfer(uint8_t data)
- {
-     while (!LL_SPI_IsActiveFlag_TXE(SPI1)); // Wait until transmit buffer is empty
-     LL_SPI_TransmitData8(SPI1, data); // Send data byte
+uint8_t spi_transfer(uint8_t data)
+{
+    while (!LL_SPI_IsActiveFlag_TXE(SPI1))
+        ;                             // Wait until transmit buffer is empty
+    LL_SPI_TransmitData8(SPI1, data); // Send data byte
 
-     while (!LL_SPI_IsActiveFlag_RXNE(SPI1)); // Wait until receive buffer is not empty
-     return LL_SPI_ReceiveData8(SPI1); // Return received data byte
- }
+    while (!LL_SPI_IsActiveFlag_RXNE(SPI1))
+        ;                             // Wait until receive buffer is not empty
+    return LL_SPI_ReceiveData8(SPI1); // Return received data byte
+}

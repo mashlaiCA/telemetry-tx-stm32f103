@@ -3,7 +3,7 @@
 
 void led_light_init(uint8_t led_gpio)
 {
-   gpio_a_led_output_init(led_gpio);// Initialize GPIOA pin as LED output
+    gpio_a_led_output_init(led_gpio); // Initialize GPIOA pin as LED output
 }
 
 void led_ON(uint8_t led_gpio)

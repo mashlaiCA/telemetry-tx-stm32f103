@@ -9,14 +9,14 @@
  * This module provides functions to start a timeout and check if it has expired.
  */
 
- /**
-  * @brief Structure to hold timeout information
-  * This structure contains the start time in milliseconds and the timeout duration in milliseconds.
-  */
+/**
+ * @brief Structure to hold timeout information
+ * This structure contains the start time in milliseconds and the timeout duration in milliseconds.
+ */
 typedef struct
 {
-    uint32_t start_ms; // Start time in milliseconds
-    uint32_t timeout_ms; // Timeout duration in milliseconds
+  uint32_t start_ms;   // Start time in milliseconds
+  uint32_t timeout_ms; // Timeout duration in milliseconds
 } timeout_t;
 
 /**

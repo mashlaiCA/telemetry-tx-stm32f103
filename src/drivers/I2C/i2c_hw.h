@@ -9,46 +9,29 @@
  * This module provides functions to initialize the I2C peripheral and perform read/write operations.
  */
 
-
 /**
  * @brief I2C status enumeration.
  * This enumeration defines various status codes for I2C operations.
- * Values:
- * - i2c_ok: Operation completed successfully.
- * - i2c_busy: I2C bus is busy.
- * - i2c_timeout_err_sb_write: Timeout error while waiting for start bit during write
- * - i2c_nack_addr_write: NACK received after sending address during write.
- * - i2c_timeout_err_addr_write: Timeout error while waiting for address acknowledgment during write.
- * - i2c_nack_txe: NACK received while waiting for transmit buffer empty during write.
- * - i2c_timeout_err_txe: Timeout error while waiting for transmit buffer empty during write.
- * - i2c_nack_bft: NACK received while waiting for byte transfer finished during write.
- * - i2c_timeout_err_btf: Timeout error while waiting for byte transfer finished during write.
- * - i2c_timeout_err_sb_read: Timeout error while waiting for start bit during read.
- * - i2c_nack_addr_read: NACK received after sending address during read.
- * - i2c_timeout_err_addr_read: Timeout error while waiting for address acknowledgment during read.
- * - i2c_timeout_err_rxne: Timeout error while waiting for receive buffer not empty during read.
- * - i2c_error: General I2C error.
- *
  * @typedef I2C_Status_t (I2C status type).
  */
 typedef enum
 {
-    i2c_ok = 0,
-    i2c_busy,
-    i2c_timeout_err_sb_write,
-    i2c_nack_addr_write,
-    i2c_timeout_err_addr_write,
-    i2c_nack_txe,
-    i2c_timeout_err_txe,
-    i2c_nack_btf,
-    i2c_timeout_err_btf,
-    i2c_timeout_err_sb_read,
-    i2c_nack_addr_read,
-    i2c_timeout_err_addr_read,
-    i2c_timeout_err_rxne,
-    i2c_error,
+    i2c_ok = 0,                 // Operation completed successfully
+    i2c_busy,                   // I2C bus is busy
+    i2c_timeout_err_sb_write,   // Timeout error while waiting for start bit (SB) during write operation
+    i2c_nack_addr_write,        // NACK received after sending address during write operation
+    i2c_timeout_err_addr_write, // Timeout error while waiting for address acknowledgment during write operation
+    i2c_nack_txe,               // NACK received while waiting for transmit buffer empty (TXE) flag
+    i2c_timeout_err_txe,        // Timeout error while waiting for transmit buffer empty (TXE) flag
+    i2c_nack_btf,               // NACK received while waiting for byte transfer finished (BTF) flag
+    i2c_timeout_err_btf,        // Timeout error while waiting for byte transfer finished (BTF) flag
+    i2c_timeout_err_sb_read,    // Timeout error while waiting for start bit (SB) during read operation
+    i2c_nack_addr_read,         // NACK received after sending address during read operation
+    i2c_timeout_err_addr_read,  // Timeout error while waiting for address acknowledgment during read operation
+    i2c_timeout_err_rxne,       // Timeout error while waiting for receive buffer not empty (RXNE) flag during read operation
+    i2c_error,                  // General I2C error
 
-    i2c_count
+    i2c_count // Total number of I2C status codes (used for array sizing)
 } I2C_Status_t;
 
 /**
@@ -56,7 +39,6 @@ typedef enum
  * This variable is updated whenever an I2C operation fails.
  */
 extern I2C_Status_t i2c_status_error;
-
 
 /**
  * @brief Initialize the I2C1 peripheral.
@@ -92,7 +74,7 @@ I2C_Status_t I2C1_Init(void);
  *   - Wait for TXE flag:
  *     - If NACK is received:
  *           - Clear NACK flag.
- *           - Generate stop condition. 
+ *           - Generate stop condition.
  *           - set error status i2c_status_error = i2c_nack_txe; and return i2c_error.
  *    - If timeout occurs, set error status i2c_status_error = i2c_timeout_err_txe and return i2c_error.
  *  - Write data to DR.
@@ -112,7 +94,6 @@ I2C_Status_t I2C1_Init(void);
  * @return I2C_Status_t Status of the write operation.
  */
 I2C_Status_t I2C_Write(uint8_t addr, uint8_t *data, uint8_t len);
-
 
 /**
  * @brief Read data from an I2C device.

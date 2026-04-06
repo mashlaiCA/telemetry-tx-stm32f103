@@ -3,6 +3,27 @@
 
 #include "stdint.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @file sht35_fsm.h
+ * @brief Header file for the SHT35 sensor finite state machine (FSM).
+ * This file implements the following functionalities:
+ * 1. Defines the states of the FSM for the SHT35 sensor
+ * 2. Declares the state functions for each state in the FSM
+ * 3. Provides the context structure for the FSM, including the current state, previous state, and timer for managing timeouts
+ * 4. Declares the function to run the FSM and handle state transitions
+ * 5. Declares the function to handle actions upon entering a new state 
+ * This FSM is designed to manage the operation of the SHT35 sensor, including starting measurements, waiting for results, reading data, checking CRC, calculating temperature and humidity, and handling errors. The FSM allows for a structured and modular approach to managing the sensor's operations and ensuring proper timing and error handling throughout the measurement process.
+ */
+
+/*
+ * @brief Enumeration for SHT35 sensor states.
+ * This enumeration defines the various states that the SHT35 sensor can be in during its operation.
+ * Each state represents a specific stage in the sensor's measurement process.
+ */
 typedef enum
 {
     st_idle = 0,              // Sensor is idle, waiting for trigger to start measurement
@@ -114,7 +135,18 @@ SHT35_State_t State_Restart_Sensor(void);
 //void Sensor_FSM_Run(void);
 
 void SHT35_FSM_Run(void);
+
+/**
+ * @brief Function prototype for handling actions upon entering a new state.
+ * This function performs any necessary actions that need to be executed when entering a new state,
+ * such as starting timers or resetting variables specific to that state.
+ * @param st The state that is being entered, which can be used to determine the specific actions to perform based on the state.
+ */
 void SHT35_OnEnter(SHT35_State_t st);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

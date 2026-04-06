@@ -16,7 +16,7 @@
  *   This function performs the following steps:
  *  1. Configure the specified GPIOA pin as an output for the LED light bulb.
  *  @param led_gpio The GPIOA pin number (0-15) connected to the LED light bulb.
- */ 
+ */
 void led_light_init(uint8_t led_gpio);
 
 /**
