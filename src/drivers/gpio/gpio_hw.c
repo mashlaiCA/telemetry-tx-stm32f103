@@ -1,5 +1,5 @@
 #include "gpio_hw.h"
-#include "../timeout_hw/timeout_hw.h"
+#include "../tim/tim2_hw.h"
 #include "stm32f103xb.h"
 
 // Initialize GPIOA clock
@@ -47,14 +47,54 @@ void gpio_a_reset(uint8_t led_gpio)
 {
     GPIOA->BSRR = (1 << led_gpio); // Set PAx high to turn off LED light bulb
 }
-/*
-void reset_pin_1(void){
-    GPIOB->BRR = (1 << 1); // Set PA1 low
-    timeout_start(&lora_timeout, 10);
-    while(!timeout_has_expired(&lora_timeout));
 
-    GPIOB->BSRR = (1 << 1); // Set PA1 high
-    timeout_start(&lora_timeout, 10);
-    while (!timeout_has_expired(&lora_timeout));
+void gpio_SPI_init(void)
+{
+    GPIOA->CRL &= ~(0xF << (5 * 4));
+    GPIOA->CRL |= (0xB << (5 * 4));
+
+    GPIOA->CRL &= ~(0xF << (0 * 4));
+    GPIOA->CRL |= (0x3 << (0 * 4));
+
+    GPIOA->CRL &= ~(0xF << (6 * 4));
+    GPIOA->CRL |= (0x8 << (6 * 4));
+
+    GPIOA->CRL &= ~(0xF << (7 * 4));
+    GPIOA->CRL |= (0xB << (7 * 4));
 }
-    */
+
+void lora_ctrl_gpio_init(void)
+{
+    GPIOB->CRL &= ~(0xF << (1 * 4));
+    GPIOB->CRL |= (0x3 << (1 * 4));
+
+    GPIOA->CRL &= ~(0xF << (1 * 4));
+    GPIOA->CRL |= (0x4 << (1 * 4));
+}
+
+void rst_low(void)
+{
+    GPIOB->BRR = (1 << 1);
+    delay_hw_ms(10);
+}
+
+void rst_high(void)
+{
+    GPIOB->BSRR = (1 << 1);
+    delay_hw_ms(10);
+}
+
+void nss_low(void)
+{
+    GPIOA->BRR = (1 << 0);
+}
+
+void nss_high(void)
+{
+    GPIOA->BSRR = (1 << 0);
+}
+
+uint8_t dio0_read(void)
+{
+    return (GPIOA->IDR & (1 << 1)) ? 1 : 0;
+}

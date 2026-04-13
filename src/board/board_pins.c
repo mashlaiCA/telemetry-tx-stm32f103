@@ -5,4 +5,6 @@ void pins_init(void)
 {
     gpio_A_init(); // Initialize GPIOA peripheral
     gpio_B_init(); // Initialize GPIOB peripheral
+    gpio_SPI_init();
+    lora_ctrl_gpio_init();
 }

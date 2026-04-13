@@ -41,8 +41,14 @@ extern "C"
      */
     void uart_send_uint16_t2(uint16_t value1,
                              uint16_t value2,
-                             uint16_t value3,
-                             uint16_t value4);
+                             uint16_t value3);
+    
+    void uart_send_line(const char *str);
+
+    void uart_print_int(int value);
+    
+    
+                
 
 #ifdef __cplusplus
 }

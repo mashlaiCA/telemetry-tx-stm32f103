@@ -64,6 +64,14 @@ void gpio_a_set(uint8_t led_gpio);
  */
 void gpio_a_reset(uint8_t led_gpio);
 
+void gpio_SPI_init(void);
+void lora_ctrl_gpio_init(void);
+void rst_low(void);
+void rst_high(void);
+void nss_low(void);
+void nss_high(void);
+uint8_t dio0_read(void);
+
 // void reset_pin_1(void);
 
 #endif

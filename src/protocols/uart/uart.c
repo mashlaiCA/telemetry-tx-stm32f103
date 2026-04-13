@@ -15,6 +15,37 @@ void uart_send_string(const char *str)
     }
 }
 
+void uart_send_line(const char *str){
+    uart_send_string(str);
+    uart_hw_send_byte('\r');
+    uart_hw_send_byte('\n');
+}
+
+void uart_print_int(int value){
+    char buf[16];
+    int i = 0;
+
+    if(value == 0){
+        uart_hw_send_byte('0');
+    }else{
+        if(value < 0)
+        {
+            uart_hw_send_byte('-');
+            value = -value;
+        }
+        while(value > 0 && i < sizeof(buf)-1){
+            buf[i++] = (value % 10) + '0';
+            value /= 10;
+        }
+    }
+    while(i--){
+        uart_hw_send_byte(buf[i]);
+    }
+    uart_hw_send_byte('\r');
+    uart_hw_send_byte('\n');
+}
+
+
 void uart_send_uint16_t(uint16_t value) // Send a uint16_t value over UART as a string
 {
     char buffer[6] = {0}; // Buffer to hold string representation
@@ -38,12 +69,11 @@ void uart_send_uint16_t(uint16_t value) // Send a uint16_t value over UART as a 
 
 void uart_send_uint16_t2(uint16_t value1,
                          uint16_t value2,
-                         uint16_t value3,
-                         uint16_t value4)
+                         uint16_t value3)
 {
-    uint16_t values[4] = {value1, value2, value3, value4}; // Array of values to send
+    uint16_t values[3] = {value1, value2, value3}; // Array of values to send
     char buffer[24] = {0};                                 // Buffer to hold string representation of all values
-    uint8_t len = 4;                                       // Number of values to send
+    uint8_t len = 3;                                       // Number of values to send
 
     for (uint8_t i = 0; i < len; i++) // Loop through each value
     {

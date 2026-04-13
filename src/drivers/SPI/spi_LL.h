@@ -5,40 +5,67 @@
 
 /**
  * @file spi_LL.h
- * @brief SPI hardware interface for STM32F103xx microcontroller using Low-Layer (LL) drivers.
- * This module provides functions to initialize the SPI peripheral and perform data transfer operations.
+ * @brief Low-level SPI driver header for STM32F103C8T6 using LL library.
+ * This header defines the interface for initializing the SPI peripheral and performing data transfers.
+ * The implementation is designed for the STM32F103C8T6 microcontroller, 
+ * uses the STM32 LL (Low-Layer) library for direct hardware access.
  */
 
-/*
- * @brief Initialize the SPI1 peripheral.
- * This function configures the SPI1 peripheral for communication.
- * This function performs the following steps:
- * 1. Enable the SPI1 clock in the RCC APB2ENR register.
- * 2. Disable SPI1 before configuration.
- * 3. Configure SPI1 settings:
- *   - Set to master mode.
- *   - Set to full duplex mode.
- *   - Set data width to 8 bits.
- *   - Set clock polarity to low.
- *   - Set clock phase to first edge.
- *   - Set NSS mode to software.
- *   - Set baud rate prescaler to 16 (for 8 MHz APB2 clock, this gives 0.5 MHz SPI clock).
- *   - Set to transmit MSB first.
- * 4. Enable SPI1 after configuration.
- */
-void spi_init();
+ typedef enum {
+     spi_error_none = 0,      
+     spi_error_init,
+     spi_error_tx,
+     spi_error_bsy,
+     spi_error_rx,
+ } spi_error_t;
 
-/*
- * @brief Transfer a byte of data over SPI.
- * This function sends a byte of data and simultaneously receives a byte of data from the SPI slave device.
- * This function performs the following steps:
- * 1. Wait until the transmit buffer is empty (TXE flag is set).
- * 2. Send the data byte using the SPI data register.
- * 3. Wait until the receive buffer is not empty (RXNE flag is set).
- * 4. Return the received data byte from the SPI data register.
+ extern volatile spi_error_t spi_error;
+/**
+ * @brief Initializes the SPI peripheral (SPI1) in master mode with specific settings.
+ * This function configures SPI1 with the following settings:
+ * - Master mode
+ * - Full duplex communication
+ * - 8-bit data width
+ * - Clock polarity low
+ * - Clock phase first edge
+ * - Software NSS management
+ * - Baud rate prescaler of 16 (for 8 MHz APB2 clock, this gives a 0.5 MHz SPI clock)
+ * - MSB first transmission
+ * - Enables the SPI1 peripheral after configuration.
+ */
+void spi_init(void);
+
+/**
+ * @brief Transfers a single byte of data over SPI and receives the response.
+ * This function sends a byte of data through SPI1 and waits for the response from the slave device.
+ * It first waits until the transmit buffer is empty, then sends the data byte.
+ * After sending, it waits until the receive buffer is not empty, indicating that a response has been received,
+ * and returns the received byte.
+ *
  * @param data The byte of data to be sent over SPI.
- * @return The byte of data received from the SPI slave device.
+ * @return The byte of data received from the slave device in response to the transmitted byte.
  */
 uint8_t spi_transfer(uint8_t data);
+
+/*
+    * @brief Checks the hardware status of the SPI peripheral to ensure it is properly configured and ready for communication.
+    * This function performs several checks on the SPI1 peripheral:
+    * - Verifies that SPI is enabled
+    * - Checks that SPI is in master mode
+    * - Ensures NSS is configured for software management
+    * - Confirms that the NSS internal signal is set
+    * - Checks that the transmit buffer is empty
+    * - Verifies that the SPI is not busy
+    *
+    * @return A status code indicating the result of the hardware checks:
+    *         0: All checks passed, SPI is ready for communication
+    *         1: SPI not enabled
+    *         2: Not in master mode
+    *         3: NSS not in software mode
+    *         4: NSS internal signal not set
+    *         5: Transmit buffer not empty
+    *         6: SPI is busy
+*/
+uint8_t spi_check_hw(void);
 
 #endif

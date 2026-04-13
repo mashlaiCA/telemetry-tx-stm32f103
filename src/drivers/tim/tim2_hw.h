@@ -4,6 +4,7 @@
 #include "stdint.h"
 
 extern volatile uint32_t sys_ms; // System milliseconds counter
+extern volatile uint64_t sys_us; 
 
 /**
  * @file tim2.h
@@ -23,4 +24,9 @@ extern volatile uint32_t sys_ms; // System milliseconds counter
  * @param time_ms The time interval in milliseconds for the timer.
  */
 void timer_init(void);
+
+void delay_hw_ms(uint32_t ms);
+void delay_hw_us(uint32_t us);
+uint32_t micros_hw(void);
+uint32_t millis_hw(void);
 #endif

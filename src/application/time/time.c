@@ -16,3 +16,20 @@ uint8_t timer_wait(timeout_t *t)
 {
     return timeout_has_expired(t); // Return whether the timeout has expired
 }
+
+void delay_ms(uint32_t ms)
+{
+   delay_hw_ms(ms);
+}
+
+void delay_us(uint32_t us){
+   delay_hw_us(us);
+}
+
+uint32_t millis_time(){
+   return millis_hw();
+}
+
+uint32_t micros_time(){
+   return micros_hw();
+}
