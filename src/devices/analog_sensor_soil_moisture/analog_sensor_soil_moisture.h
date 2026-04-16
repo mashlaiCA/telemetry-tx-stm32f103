@@ -15,6 +15,11 @@ extern "C"
      * and read soil moisture values from specified GPIO pins configured as ADC1 channels.
      */
 
+
+    typedef void (*analog_sensor_state_handler_t)(void);
+
+    extern analog_sensor_state_handler_t g_analog_sensor_state_handler;
+
     /** @brief Initialize soil moisture sensor on specified GPIO pin.
      *   This function performs the following steps:
      *  1. Initialize the ADC1 peripheral.

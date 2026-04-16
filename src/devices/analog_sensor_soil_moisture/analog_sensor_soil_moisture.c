@@ -2,6 +2,9 @@
 #include "drivers/acd1/acd1.h"
 #include "drivers/gpio/gpio_hw.h"
 
+
+
+
 void analog_sensor_soil_moisture_init(uint8_t sensor_gpio)
 {
     adc1_init();                           // Initialize ADC1 peripheral
@@ -13,3 +16,4 @@ uint16_t analog_sensor_soil_moisture_read(uint8_t sensor_gpio)
 {
     return adc1_read(sensor_gpio); // Read and return soil moisture value from specified GPIO pin (ADC1 channel)
 }
+

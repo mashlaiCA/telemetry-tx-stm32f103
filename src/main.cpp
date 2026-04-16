@@ -11,6 +11,8 @@
 #include "protocols/i2c/i2c.h"
 #include "devices/Sensor_SHT35/sensor_sht35.h"
 #include "devices/Sensor_SHT35/sht35_fsm.h"
+#include "application/system_data/system_data.h"
+#include "devices/analog_sensor_soil_moisture/analog_sensor_soil_moisture_fsm.h"
 
 extern STM32F103RadioLibHal hal;
 
@@ -47,15 +49,19 @@ int main(void) // Main function
     ;
 
   lora_fsm_init(&radio);
+  analog_sensor_fsm_init();
   uart_init();
 
-  analog_sensor_soil_moisture_init(2); // !!!??Initialize soil moisture sensor on PA2/ADC1 channel 2
+  analog_sensor_soil_moisture_init(3); // Initialize soil moisture sensor on PA2/ADC1 channel 3
+  analog_sensor_soil_moisture_init(2); // Initialize soil moisture sensor on PA3/ADC1 channel 2
 
   while (1)
   {
 
     lora_fsm_run();
     SHT35_FSM_Run();
+    analog_sensor_FSM_Run();
+    
 
     if (!started)
     {
@@ -67,16 +73,20 @@ int main(void) // Main function
     {
       started = 0; // Reset the started flag to allow the next timeout to start
 
+            sensor_update(&system_data);
+            build_payload(&system_data);
 
+              uart_send_string(system_data.data_string);
               uart_print_int(g_begin_state);
               uart_print_int(hal.millis());
               uart_print_int(hal.micros());
               uart_print_int(spi_check());
-
+/*
       uart_send_uint16_t2(temperatureSHT35(),
                           humiditySHT35(),
-                          analog_sensor_soil_moisture_read(2));
-                          
+                          analog_sensor_soil_moisture_read(2),
+                          analog_sensor_soil_moisture_read(3));
+                          */
     }
   }
 }

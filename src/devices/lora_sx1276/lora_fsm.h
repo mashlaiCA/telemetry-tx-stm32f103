@@ -7,7 +7,7 @@ typedef void (*lora_state_handler_t)(void);
 extern lora_state_handler_t g_lora_state_handler;
 
 
-extern int g_begin_state;
+extern int g_begin_state; 
 void lora_fsm_init(SX1276* radio);
 void lora_fsm_run(void);
 

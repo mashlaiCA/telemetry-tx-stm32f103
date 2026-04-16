@@ -2,8 +2,12 @@
 #include "application/errors/system_error.h"
 #include "sensor_sht35.h"
 #include "drivers/timeout_hw/timeout_hw.h"
+#include "application/system_data/system_data.h"
+#include "devices/analog_sensor_soil_moisture/analog_sensor_soil_moisture.h"
 
 #include "application/errors/i2c_errors.h"
+
+
 
 uint8_t sht_max_retry = 3;            // Maximum number of retry attempts in case of errors
 static uint8_t error_retry_count = 0; // Counter for retry attempts in case of errors
@@ -25,7 +29,6 @@ StateFunction_t state_table[st_count] = {
 
 typedef struct
 {
-
     SHT35_State_t state; // Current state of the FSM
     SHT35_Status_t prev; // Previous state of the FSM for detecting state changes
 
@@ -67,12 +70,15 @@ void SHT35_OnEnter(SHT35_State_t st)
 
 SHT35_State_t State_Idle(void) // Idle state, waiting for trigger to start measurement
 {
+   // if (!timeout_has_expired(&sht35_context.timer)) // Wait for 50 ms before starting the next measurement cycle to ensure the sensor is ready
+       // return st_idle; // If the delay fails, transition to the idle state
 
-    if (!timeout_has_expired(&sht35_context.timer)) // Wait for 50 ms before starting the next measurement cycle to ensure the sensor is ready
-    {
-        return st_idle; // If the delay fails, transition to the idle state
+
+   if (system_data.ready_sensors_flag == 0)  //!!!!!!!@@@@
+    { 
+        return st_start_sensor; // Transition to the state for starting the sensor measurement
     }
-    return st_start_sensor; // Transition to the state for starting the sensor measurement
+    return st_idle; //!!!!!!
 }
 
 SHT35_State_t State_Start_Sensor(void) // State for starting the sensor measurement
@@ -117,11 +123,18 @@ SHT35_State_t State_CRC_Check(void) // State for checking the CRC of the receive
 }
 SHT35_State_t State_Calculate_Data(void) // State for calculating temperature and humidity from the raw data
 {
-    SHT35_Calculate();                      // Convert the raw data from the SHT35 sensor into temperature and humidity values
+    SHT35_Calculate(); // Convert the raw data from the SHT35 sensor into temperature and humidity values
+
     if (get_last_sht35_error() != sht35_ok) // Check for calculation errors and transition to the error state if any errors occur
     {
         return st_error; // If the calculation is complete, transition to the idle state for the next measurement cycle
     }
+
+
+    system_data.ready_sensors_flag |= DATA_SHT35_READY;//!@!!!!!!!@@@@
+
+
+
     return st_idle; // Transition to the idle state for the next measurement cycle
 }
 

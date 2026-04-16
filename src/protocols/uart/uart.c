@@ -13,6 +13,7 @@ void uart_send_string(const char *str)
         uart_hw_send_byte((uint8_t)*str); // Send each character
         str++;                            // Move to next character
     }
+    uart_hw_send_byte('\n');
 }
 
 void uart_send_line(const char *str){
@@ -69,11 +70,12 @@ void uart_send_uint16_t(uint16_t value) // Send a uint16_t value over UART as a 
 
 void uart_send_uint16_t2(uint16_t value1,
                          uint16_t value2,
-                         uint16_t value3)
+                         uint16_t value3,
+                         uint16_t value4) // Send multiple uint16_t values over UART as a single line of text
 {
-    uint16_t values[3] = {value1, value2, value3}; // Array of values to send
-    char buffer[24] = {0};                                 // Buffer to hold string representation of all values
-    uint8_t len = 3;                                       // Number of values to send
+    uint16_t values[4] = {value1, value2, value3, value4}; // Array of values to send
+    char buffer[32] = {0};                                 // Buffer to hold string representation of all values
+    uint8_t len = 4;                                       // Number of values to send
 
     for (uint8_t i = 0; i < len; i++) // Loop through each value
     {
