@@ -41,7 +41,7 @@ void sensor_update(system_data_t* data) // Function to update sensor data
     data->soil_moisture_20 = system_analog_sensors_data.sensor_soil_20;
 }
 
-void build_payload(system_data_t* data)
+void data_creation(system_data_t* data)
 {
     char *p = data->data_string;
 

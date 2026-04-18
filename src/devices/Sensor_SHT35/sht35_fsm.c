@@ -74,7 +74,7 @@ SHT35_State_t State_Idle(void) // Idle state, waiting for trigger to start measu
        // return st_idle; // If the delay fails, transition to the idle state
 
 
-   if (system_data.ready_sensors_flag == 0)  //!!!!!!!@@@@
+   if (!(system_data.ready_sensors_flag & DATA_SHT35_READY)) //!!!!!!!@@@@
     { 
         return st_start_sensor; // Transition to the state for starting the sensor measurement
     }
@@ -134,7 +134,6 @@ SHT35_State_t State_Calculate_Data(void) // State for calculating temperature an
     system_data.ready_sensors_flag |= DATA_SHT35_READY;//!@!!!!!!!@@@@
 
 
-
     return st_idle; // Transition to the idle state for the next measurement cycle
 }
 
@@ -142,7 +141,7 @@ SHT35_State_t State_Restart_Sensor(void) // State for restarting the sensor
 {
     I2C_Restart_Sensor_SHT35(); // Send a soft reset command to the SHT35 sensor to restart it
 
-    // Dealay!!!!!!!!!
+    // Dealay!!!!!!!
 
     return st_idle; // Transition to the idle state after restarting the sensor to allow for the next measurement cycle to begin
 }

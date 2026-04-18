@@ -17,6 +17,7 @@ static void lora_state_init(void);
 //static void lora_state_rx(void);
 //static void lora_state_rx_wait(void);
 //static void lora_state_check(void);
+static void lora_state_tx_done(void);
 static void lora_state_tx_wait(void);
 static void lora_state_tx(void);
 
@@ -80,29 +81,33 @@ static void lora_state_check(void)
 }
 */ 
 static void lora_state_tx_wait(void){
-
-    if (timer_wait(&g_timer))
-    {
-          timer_set(&g_timer, 1000);
-
-        system_data.lora_busy = 0; 
-        g_lora_state_handler = lora_state_tx;
-    }
+        if(system_data.ready_data_creation_flag == 1 && system_data.lora_busy == 0){
+         g_lora_state_handler = lora_state_tx;
+         system_data.lora_busy = 1;
 }
-
+}
 static void lora_state_tx(void){
-     //!!!
 
     int state = g_radio->transmit(system_data.data_string); 
-    
-    system_data.ready_sensors_flag = 0; // 
+
     if(state == RADIOLIB_ERR_NONE){
-       // timer_set(&g_timer, 50);
-       // g_lora_state_handler = lora_state_rx_wait;
-       g_lora_state_handler = lora_state_tx_wait;//new
-    }
+        timer_set(&g_timer, 200);
+       g_lora_state_handler = lora_state_tx_done;
+}
 }
 
+
+static void lora_state_tx_done(void){
+    if (timer_wait(&g_timer))
+{
+        system_data.lora_busy = 0; 
+        system_data.ready_data_creation_flag = 0;
+        system_data.ready_sensors_flag = 0;
+
+        g_lora_state_handler = lora_state_tx_wait;
+}
+
+}
 /*
 static void lora_state_rx_wait(void)
 {

@@ -49,7 +49,7 @@ void analog_sensor_FSM_Run(void)
 
 void analog_sensor_state_wait_read(void)
 {
-    if (system_data.ready_sensors_flag == 0) 
+    if (!(system_data.ready_sensors_flag & DATA_ANALOG_READY))
     {
         g_analog_sensor_state_handler = analog_sensor_state_read; 
     }
@@ -65,7 +65,7 @@ void analog_sensor_state_read(void){
       system_analog_sensors_data.sensor_soil_10 = sensors[0].value_sensor;
       system_analog_sensors_data.sensor_soil_20 = sensors[1].value_sensor;
 
-      system_data.ready_sensors_flag |= DATA_ANALOG_READY;
+        system_data.ready_sensors_flag |= DATA_ANALOG_READY;
 
         g_analog_sensor_state_handler = analog_sensor_state_wait_read;
     }

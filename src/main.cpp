@@ -65,7 +65,7 @@ int main(void) // Main function
 
     if (!started)
     {
-      timer_set(&system_timeout, 3000);
+      timer_set(&system_timeout, 1000);
       started = 1;
     }
 
@@ -73,20 +73,19 @@ int main(void) // Main function
     {
       started = 0; // Reset the started flag to allow the next timeout to start
 
+      if(system_data.ready_sensors_flag == (DATA_SHT35_READY | DATA_ANALOG_READY)){
+            
             sensor_update(&system_data);
-            build_payload(&system_data);
+            data_creation(&system_data);
+            system_data.ready_data_creation_flag = 1; 
 
               uart_send_string(system_data.data_string);
+
               uart_print_int(g_begin_state);
               uart_print_int(hal.millis());
               uart_print_int(hal.micros());
               uart_print_int(spi_check());
-/*
-      uart_send_uint16_t2(temperatureSHT35(),
-                          humiditySHT35(),
-                          analog_sensor_soil_moisture_read(2),
-                          analog_sensor_soil_moisture_read(3));
-                          */
     }
   }
+}
 }
