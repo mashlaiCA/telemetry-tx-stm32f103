@@ -17,7 +17,6 @@ typedef struct
     uint16_t temperature; // Temperature value in hundredths of degrees Celsius
     uint16_t humidity;    // Humidity value in hundredths of percent
     uint16_t soil_moisture_10; 
-    uint16_t soil_moisture_20; 
     
     char data_string[32]; 
 

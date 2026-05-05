@@ -65,11 +65,17 @@ void gpio_SPI_init(void)
 
 void lora_ctrl_gpio_init(void)
 {
-    GPIOB->CRL &= ~(0xF << (1 * 4));
+    GPIOB->CRL &= ~(0xF << (1 * 4)); 
     GPIOB->CRL |= (0x3 << (1 * 4));
 
     GPIOA->CRL &= ~(0xF << (1 * 4));
     GPIOA->CRL |= (0x4 << (1 * 4));
+    
+}
+
+uint8_t gpio_read_pin(GPIO_TypeDef* GPIOx, uint8_t pin)
+{
+    return (GPIOx->IDR & (1 << pin)) ? 1 : 0;
 }
 
 void rst_low(void)

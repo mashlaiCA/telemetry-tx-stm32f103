@@ -4,7 +4,7 @@
 #include <string.h>
 
 
-#define ANALOG_SENSOR_COUNT 2
+#define ANALOG_SENSOR_COUNT 1
 
 typedef struct
 {
@@ -24,8 +24,6 @@ void analog_sensor_state_wait_read(void);
 void analog_sensor_state_read(void);
 
 analog_sensor_t sensors[ANALOG_SENSOR_COUNT] = {
-    {.sensor_gpio = 2,
-     .value_sensor = 0},
     {.sensor_gpio = 3,
      .value_sensor = 0}
 };
@@ -63,7 +61,6 @@ void analog_sensor_state_read(void){
         current_sensor_index = 0;
 
       system_analog_sensors_data.sensor_soil_10 = sensors[0].value_sensor;
-      system_analog_sensors_data.sensor_soil_20 = sensors[1].value_sensor;
 
         system_data.ready_sensors_flag |= DATA_ANALOG_READY;
 

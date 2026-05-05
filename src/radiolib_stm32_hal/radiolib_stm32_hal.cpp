@@ -25,20 +25,20 @@ uint32_t STM32F103RadioLibHal::digitalRead(uint32_t pin){
 }
 
 void STM32F103RadioLibHal::attachInterrupt(uint32_t interruptNum, void (*interruptCb)(void), uint32_t mode){
-/*
+
     if(interruptNum == 1) {
         this->dio0Callback = interruptCb;
-        EXTI1_init();
+        //EXTI1_init();
     }
-*/
+
 }
 
 void STM32F103RadioLibHal::detachInterrupt(uint32_t interruptNum){
-    /*
+    
     if(interruptNum == 1) {
         this->dio0Callback = nullptr; 
     }
-    */
+    
 }
 
 void STM32F103RadioLibHal::delayMicroseconds(RadioLibTime_t us){ 

@@ -13,6 +13,7 @@
 #include "devices/Sensor_SHT35/sht35_fsm.h"
 #include "application/system_data/system_data.h"
 #include "devices/analog_sensor_soil_moisture/analog_sensor_soil_moisture_fsm.h"
+#include "drivers/external_interrupt/exti_1.h"
 
 extern STM32F103RadioLibHal hal;
 
@@ -29,6 +30,8 @@ int main(void) // Main function
 {
 
   pins_init();
+  EXTI1_init(); // Initialize external interrupt on PA1 for DIO0
+   __enable_irq(); // Enable global interrupts
   spi_start(); // Initialize SPI peripheral
   lora_init();
 
@@ -39,7 +42,7 @@ int main(void) // Main function
   i2c_start();    // Initialize I2C peripheral
 
   
- __enable_irq(); // Enable global interrupts
+
 
   hal.spiBegin();
   
@@ -53,7 +56,7 @@ int main(void) // Main function
   uart_init();
 
   analog_sensor_soil_moisture_init(3); // Initialize soil moisture sensor on PA2/ADC1 channel 3
-  analog_sensor_soil_moisture_init(2); // Initialize soil moisture sensor on PA3/ADC1 channel 2
+  
 
   while (1)
   {
@@ -65,7 +68,7 @@ int main(void) // Main function
 
     if (!started)
     {
-      timer_set(&system_timeout, 1000);
+      timer_set(&system_timeout, 5000);
       started = 1;
     }
 
@@ -74,17 +77,16 @@ int main(void) // Main function
       started = 0; // Reset the started flag to allow the next timeout to start
 
       if(system_data.ready_sensors_flag == (DATA_SHT35_READY | DATA_ANALOG_READY)){
-            
+         
             sensor_update(&system_data);
             data_creation(&system_data);
             system_data.ready_data_creation_flag = 1; 
 
               uart_send_string(system_data.data_string);
 
-              uart_print_int(g_begin_state);
-              uart_print_int(hal.millis());
-              uart_print_int(hal.micros());
-              uart_print_int(spi_check());
+              uart_print_int( exti1_interrupt_count);
+              uart_print_int(exti1_spurious_interrupt_count);
+              uart_print_int(statusTXdone);
     }
   }
 }

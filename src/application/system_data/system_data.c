@@ -3,7 +3,7 @@
 #include "devices/analog_sensor_soil_moisture/analog_sensor_soil_moisture_fsm.h"
 
 
-
+uint16_t count;
 system_data_t system_data = {0}; 
 
 
@@ -35,27 +35,24 @@ char* int_to_str(int value, char* str) {
 
 void sensor_update(system_data_t* data) // Function to update sensor data
 {
-    data->temperature = temperatureSHT35();
-    data->humidity = humiditySHT35();
+
     data->soil_moisture_10 = system_analog_sensors_data.sensor_soil_10;
-    data->soil_moisture_20 = system_analog_sensors_data.sensor_soil_20;
+    data->humidity = humiditySHT35();
+    data->temperature = temperatureSHT35();
 }
 
 void data_creation(system_data_t* data)
 {
     char *p = data->data_string;
 
-    p = int_to_str(data->temperature, p);
+    p = int_to_str(data->soil_moisture_10, p);
     *p++ = ',';
 
     p = int_to_str(data->humidity, p);
-    *p++ = ',';
-
-    p = int_to_str(data->soil_moisture_10, p);
 
     *p++ = ',';
 
-    p = int_to_str(data->soil_moisture_20, p);
+    p = int_to_str(data->temperature, p);
 
     *p = '\0';
 }

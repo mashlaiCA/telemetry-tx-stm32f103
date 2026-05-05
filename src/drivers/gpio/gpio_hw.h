@@ -2,6 +2,7 @@
 #define GPIO_H
 
 #include "stdint.h"
+#include "stm32f103xb.h"
 
 /**
  * @file gpioA.h
@@ -63,6 +64,8 @@ void gpio_a_set(uint8_t led_gpio);
  *  @param led_gpio The GPIOA pin number (0-7) connected to the LED.
  */
 void gpio_a_reset(uint8_t led_gpio);
+
+uint8_t gpio_read_pin(GPIO_TypeDef* GPIOx, uint8_t pin);
 
 void gpio_SPI_init(void);
 void lora_ctrl_gpio_init(void);
