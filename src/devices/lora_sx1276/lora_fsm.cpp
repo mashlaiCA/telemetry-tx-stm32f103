@@ -12,13 +12,8 @@ lora_state_handler_t g_lora_state_handler = nullptr;
 
 volatile uint8_t lora_tx_done_flag = 0; // Flag to indicate that transmission is done, set in onTxDone() ISR
 
-int statusTransmit = 999; //
 
-int finish = 66; // Variable to hold the result of finishTransmit() for debugging purposes
-
-int statusTXdone;
-
-static timeout_t g_timer;
+// static timeout_t g_timer; // unused - removed to avoid warning
 int g_begin_state;
 
 static void lora_state_init(void);
@@ -109,7 +104,6 @@ static void lora_state_tx(void)
     lora_tx_done_flag = 0;
 
     int state = g_radio->startTransmit(system_data.data_string);
-    statusTransmit = state;
     if (state == RADIOLIB_ERR_NONE)
     {
 
@@ -127,10 +121,8 @@ static void lora_state_tx_done(void)
 {
     if (lora_tx_done_flag)
     {
-        statusTXdone ++;
 
-        int finishState = g_radio->finishTransmit();
-        finish = finishState; 
+        (void)g_radio->finishTransmit();
 
         lora_tx_done_flag = 0;
 
@@ -139,7 +131,6 @@ static void lora_state_tx_done(void)
         system_data.lora_busy = 0;
         system_data.ready_data_creation_flag = 0;
         system_data.ready_sensors_flag = 0;
-
         g_lora_state_handler = lora_state_tx_wait;
     }
 }
