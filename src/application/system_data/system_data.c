@@ -1,7 +1,11 @@
 #include "system_data.h"
 #include "devices/Sensor_SHT35/sensor_sht35.h"
 #include "devices/analog_sensor_soil_moisture/analog_sensor_soil_moisture_fsm.h"
+#include "devices/analog_sensor_soil_moisture/analog_leaf_sensor.h"
+#include "devices/analog_sensor_soil_moisture/analog_sensor_soil_moisture.h"
+
 #include "stm32f1xx.h"
+
 
 uint16_t count;
 system_data_t system_data = {0};
@@ -23,6 +27,7 @@ void system_data_run(void)
     if (flags & DATA_ANALOG_READY)
     {
         sensor_update_soil_moisture(&system_data);
+        sensor_update_leaf_sensor(&system_data);
     }
 
     /* both ready? create & send */
@@ -80,8 +85,12 @@ void sensor_update_SHT35(system_data_t *data)
 }
 void sensor_update_soil_moisture(system_data_t *data)
 {
+    data->soil_moisture_10 = soil_sensor_read_average();
+}
 
-    data->soil_moisture_10 = system_analog_sensors_data.sensor_soil_10;
+void sensor_update_leaf_sensor(system_data_t *data)
+{
+    data->leaf_moisture = leaf_sensor_read_average();
 }
 
 void data_creation(system_data_t *data)
@@ -96,6 +105,10 @@ void data_creation(system_data_t *data)
     *p++ = ',';
 
     p = int_to_str(data->temperature, p);
+
+    *p++ = ',';
+
+    p = int_to_str(data->leaf_moisture, p);
 
     *p = '\0';
 }

@@ -17,6 +17,7 @@ typedef struct
     uint16_t temperature; // Temperature value in hundredths of degrees Celsius
     uint16_t humidity;    // Humidity value in hundredths of percent
     uint16_t soil_moisture_10; 
+    uint16_t leaf_moisture;
     
     char data_string[32]; 
 
@@ -33,6 +34,8 @@ void system_data_run(void); // Function to run the system data processing, calle
 void sensor_update_SHT35(system_data_t* data);
 
 void sensor_update_soil_moisture(system_data_t* data);
+
+void sensor_update_leaf_sensor(system_data_t* data);
 
 void data_creation(system_data_t* data); // Function to build the payload string from sensor data
 
