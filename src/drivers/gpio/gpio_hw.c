@@ -28,6 +28,38 @@ void gpio_a_analog_input_init(uint8_t pin)
     GPIOA->CRL |= (0x0 << (pin * 4));  // Set PAx as analog input
 }
 
+//===============================polarity==============//
+
+void gpio_A_polarity_init(uint8_t pin1){
+
+    GPIOA -> CRL &= ~(0xF << pin1 * 4);
+    GPIOA -> CRL |= (0x2 << pin1 * 4);
+}
+
+void polarity_fwd(uint8_t pin1, uint8_t pin2){
+    gpio_A_polarity_init(pin1);
+    gpio_A_polarity_init(pin2);
+    GPIOA -> BSRR = (1 << pin1);
+    GPIOA -> BRR = (1 << pin2);
+}
+
+void polarity_rev(uint8_t pin1, uint8_t pin2){
+    gpio_A_polarity_init(pin1);
+    gpio_A_polarity_init(pin2);
+    GPIOA -> BSRR = (1 << pin2);
+    GPIOA -> BRR = (1 << pin1);
+}
+
+void polarity_off(uint8_t pin1, uint8_t pin2){
+    // Float both excitation pins (input, no pull) instead of driving them
+    // low, so no leakage/bias current path exists through the sensor
+    // between measurements.
+    GPIOA -> CRL &= ~((0xF << pin1 * 4) | (0xF << pin2 * 4));
+    GPIOA -> CRL |= (0x4 << pin1 * 4) | (0x4 << pin2 * 4);
+}
+
+//===============================+====================//
+
 // Initialize GPIOA pin as output for LED
 void gpio_a_led_output_init(uint8_t pin)
 {
@@ -35,6 +67,9 @@ void gpio_a_led_output_init(uint8_t pin)
     GPIOA->CRL |= (0x1 << (pin * 4));  // Set PAx as output (push-pull)
     GPIOA->BSRR = (1 << (pin));        // Set PAx high (turn off LED)
 }
+
+
+
 
 // Set GPIOA pin low to turn on LED
 void gpio_a_set(uint8_t led_gpio)
@@ -50,26 +85,26 @@ void gpio_a_reset(uint8_t led_gpio)
 
 void gpio_SPI_init(void)
 {
-    GPIOA->CRL &= ~(0xF << (5 * 4));
-    GPIOA->CRL |= (0xB << (5 * 4));
+    GPIOA->CRL &= ~(0xF << (5 * 4));// Clear mode bits for PA5 (SCK)
+    GPIOA->CRL |= (0xB << (5 * 4));// Set PA5 to Alternate Function Push-Pull output
 
-    GPIOA->CRL &= ~(0xF << (0 * 4));
-    GPIOA->CRL |= (0x3 << (0 * 4));
+    GPIOA->CRL &= ~(0xF << (0 * 4));// Clear mode bits for PA0 (NSS)
+    GPIOA->CRL |= (0x3 << (0 * 4));// Set PA0 to General Purpose Output Push-Pull
 
-    GPIOA->CRL &= ~(0xF << (6 * 4));
-    GPIOA->CRL |= (0x8 << (6 * 4));
+    GPIOA->CRL &= ~(0xF << (6 * 4));// Clear mode bits for PA6 (MISO)+
+    GPIOA->CRL |= (0x8 << (6 * 4));// Set PA6 to Input Floating
 
-    GPIOA->CRL &= ~(0xF << (7 * 4));
-    GPIOA->CRL |= (0xB << (7 * 4));
+    GPIOA->CRL &= ~(0xF << (7 * 4)); // Clear mode bits for PA7 (MOSI)
+    GPIOA->CRL |= (0xB << (7 * 4));// Set PA7 to Alternate Function Push-Pull output
 }
 
 void lora_ctrl_gpio_init(void)
 {
-    GPIOB->CRL &= ~(0xF << (1 * 4)); 
-    GPIOB->CRL |= (0x3 << (1 * 4));
+    GPIOB->CRL &= ~(0xF << (1 * 4));  // Clear mode bits for PB1 (RST)
+    GPIOB->CRL |= (0x3 << (1 * 4)); // Set PB1 to General Purpose Output Push-Pull
 
-    GPIOA->CRL &= ~(0xF << (1 * 4));
-    GPIOA->CRL |= (0x4 << (1 * 4));
+    GPIOA->CRL &= ~(0xF << (1 * 4)); // Clear mode bits for PA1 (DIO0)+
+    GPIOA->CRL |= (0x4 << (1 * 4)); // Set PA1 to Input Floating
     
 }
 

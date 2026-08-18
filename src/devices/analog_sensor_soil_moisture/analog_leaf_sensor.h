@@ -8,9 +8,23 @@ extern "C"
 {
 #endif
 
-void leaf_sensor_init(void);
+typedef enum {
+    LEAF_DRY = 0,
+    LEAF_WET = 1,
+    LEAF_FAULT = 2
+} leaf_state_t;
 
-int16_t leaf_sensor_read_average(void);
+typedef struct {
+    uint16_t     raw;            
+    leaf_state_t state;    
+} leaf_data_t;
+
+void leaf_wetness_init(void);
+leaf_data_t leaf_wetness_read(void);
+
+//void leaf_sensor_init(void);
+
+//int16_t leaf_sensor_read_average(void);
 
 #ifdef __cplusplus
 }

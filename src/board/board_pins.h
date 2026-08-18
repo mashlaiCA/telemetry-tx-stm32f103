@@ -21,6 +21,8 @@ extern "C"
 
     void pins_init(void);
 
+    void polarity_init(uint8_t pin_1);
+
 #ifdef __cplusplus
 }
 #endif

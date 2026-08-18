@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-uint16_t analog_signal_leaf_sensor(void);
+
 
 
 #ifdef __cplusplus

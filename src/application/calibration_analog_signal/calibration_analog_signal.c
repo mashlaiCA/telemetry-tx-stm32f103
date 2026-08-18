@@ -4,7 +4,3 @@
 #include "devices/analog_sensor_soil_moisture/analog_sensor_soil_moisture.h"
 
 
-uint16_t analog_signal_leaf_sensor(void)
-{
-   return adc1_read(4);
-}

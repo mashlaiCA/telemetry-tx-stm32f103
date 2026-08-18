@@ -42,6 +42,16 @@ void gpio_SPI_init();
 
 void lora_ctrl_gpio_init();
 
+void gpio_A_polarity_init(uint8_t pin1);
+
+void polarity_fwd(uint8_t pin1, uint8_t pin2);
+
+void polarity_rev(uint8_t pin1, uint8_t pin2);
+
+void polarity_off(uint8_t pin1, uint8_t pin2);
+
+
+
 /** @brief Initialize GPIOA pin as LED output.
  *   This function performs the following steps:
  *  1. Clear the CNF and MODE bits for the specified GPIOA pin.

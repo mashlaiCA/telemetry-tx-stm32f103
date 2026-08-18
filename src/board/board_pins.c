@@ -8,3 +8,8 @@ void pins_init(void)
     gpio_SPI_init();
     lora_ctrl_gpio_init();
 }
+
+void polarity_init(uint8_t pin_1){
+
+    gpio_A_polarity_init(pin_1);
+}
