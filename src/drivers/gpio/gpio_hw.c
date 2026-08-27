@@ -88,8 +88,8 @@ void gpio_SPI_init(void)
     GPIOA->CRL &= ~(0xF << (5 * 4));// Clear mode bits for PA5 (SCK)
     GPIOA->CRL |= (0xB << (5 * 4));// Set PA5 to Alternate Function Push-Pull output
 
-    GPIOA->CRL &= ~(0xF << (0 * 4));// Clear mode bits for PA0 (NSS)
-    GPIOA->CRL |= (0x3 << (0 * 4));// Set PA0 to General Purpose Output Push-Pull
+    GPIOB->CRH &= ~(0xF << (4 * 4));// Clear mode bits for PB12 (NSS)
+    GPIOB->CRH |= (0x3 << (4 * 4));// Set P12 to General Purpose Output Push-Pull
 
     GPIOA->CRL &= ~(0xF << (6 * 4));// Clear mode bits for PA6 (MISO)+
     GPIOA->CRL |= (0x8 << (6 * 4));// Set PA6 to Input Floating
@@ -127,12 +127,12 @@ void rst_high(void)
 
 void nss_low(void)
 {
-    GPIOA->BRR = (1 << 0);
+    GPIOB->BRR = (1 << 12);
 }
 
 void nss_high(void)
 {
-    GPIOA->BSRR = (1 << 0);
+    GPIOB->BSRR = (1 << 12);
 }
 
 uint8_t dio0_read(void)

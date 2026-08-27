@@ -22,7 +22,8 @@
 #include "drivers/external_interrupt/exti_1.h"
 
 #include "devices/ds3231_rtc/ds3231_rtc.h"
-
+#include "drivers/power/sleep_hw.h" //test
+#include "drivers/exti/exti_hw.h" //test
 
 extern STM32F103RadioLibHal hal;
 
@@ -74,11 +75,14 @@ int main(void) // Main function
 
     ds3231_init();
 
+     sleep_debug_enable();   // SWD alive in Stop mode (development only) test
+     exti0_pa0_init();       // PA0 wakeup from DS3231 SQW test
+
     if (ds3231_lost_power())
     {
         ds3231_time_t t = {
-            .sec = 0, .min = 25, .hour = 16,
-            .day = 3, .date = 26, .month = 8, .year = 26
+            .sec = 0, .min = 18, .hour = 18,
+            .day = 4, .date = 27, .month = 8, .year = 26
         };
         ds3231_set_time(&t);
     }
@@ -92,7 +96,7 @@ int main(void) // Main function
     
     if (!started)
     {
-      timer_set(&system_timeout, 5000);
+      timer_set(&system_timeout, 60000);
       started = 1;
     }
 
@@ -110,10 +114,14 @@ int main(void) // Main function
       }else{
         uart_send_string("error");
       }
-
       //=========================  
 
-      //uart_send_string("69");
+     ds3231_set_alarm_in(15);        // wake in 15 seconds
+     EXTI->PR = EXTI_PR_PR0;         // clear any stale edge
+     EXTI->IMR &= ~EXTI_IMR_MR1;   // mask DIO0 during sleep
+     sleep_enter_stop();
+     EXTI->IMR |= EXTI_IMR_MR1;           // sleep here
+     uart_send_string("wake\r\n");   // first line after wake
     
   }
 }

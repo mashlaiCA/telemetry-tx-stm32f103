@@ -3,6 +3,10 @@
 
 #define DS3231_ADDR               0x68
 #define REG_TIME                  0x00
+#define REG_ALARM1_SEC            0x07
+#define REG_ALARM1_MIN            0x08
+#define REG_ALARM1_HOUR           0x09
+#define REG_ALARM1_DAYDATE        0x0A
 #define REG_CONTROL               0x0E
 #define REG_STATUS                0x0F
 
@@ -92,6 +96,45 @@ I2C_Status_t ds3231_get_time(ds3231_time_t *t)
     t->year  = bcd_to_bin(buf[6]);
 
     return i2c_ok;
+}
+
+I2C_Status_t ds3231_set_alarm_in(uint8_t seconds_ahead)
+{
+    uint8_t buf[3];
+
+    I2C_Status_t st = ds3231_read_regs(REG_TIME, buf, 3); // Read current sec, min, hour
+    if (st != i2c_ok) return st;
+
+    uint8_t sec  = bcd_to_bin(buf[0] & 0x7F);
+    uint8_t min  = bcd_to_bin(buf[1] & 0x7F);
+    uint8_t hour = bcd_to_bin(buf[2] & 0x3F);
+
+    uint16_t total_sec = sec + seconds_ahead;
+    sec = total_sec % 60;               // Seconds after add, wrapped to 0-59
+    uint8_t carry_min = total_sec / 60; // Minutes carried out of the seconds add
+
+    uint16_t total_min = min + carry_min;
+    min = total_min % 60;                // Minutes after carry, wrapped to 0-59
+    uint8_t carry_hour = total_min / 60; // Hours carried out of the minutes add
+
+    hour = (hour + carry_hour) % 24; // Hours after carry, wrapped at 24
+
+    st = ds3231_write_reg(REG_ALARM1_SEC, bin_to_bcd(sec)); // A1M1=0: match seconds
+    if (st != i2c_ok) return st;
+
+    st = ds3231_write_reg(REG_ALARM1_MIN, bin_to_bcd(min)); // A1M2=0: match minutes
+    if (st != i2c_ok) return st;
+
+    st = ds3231_write_reg(REG_ALARM1_HOUR, bin_to_bcd(hour)); // A1M3=0, 24-hour mode: match hours
+    if (st != i2c_ok) return st;
+
+    st = ds3231_write_reg(REG_ALARM1_DAYDATE, 0x80); // A1M4=1: ignore date, match hours+min+sec only
+    if (st != i2c_ok) return st;
+
+    st = ds3231_write_reg(REG_CONTROL, 0x05); // INTCN=1: SQW pin is alarm interrupt, A1IE=1: enable Alarm1
+    if (st != i2c_ok) return st;
+
+    return ds3231_write_reg(REG_STATUS, 0x00); // Clear A1F alarm flag
 }
 
 void ds3231_datetime_to_str(const ds3231_time_t *t, char *buf)

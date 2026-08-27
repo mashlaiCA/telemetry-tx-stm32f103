@@ -24,6 +24,7 @@ I2C_Status_t ds3231_init(void);
 uint8_t ds3231_lost_power(void);
 I2C_Status_t ds3231_set_time(const ds3231_time_t *t);
 I2C_Status_t ds3231_get_time(ds3231_time_t *t);
+I2C_Status_t ds3231_set_alarm_in(uint8_t seconds_ahead);
 void ds3231_datetime_to_str(const ds3231_time_t *t, char *buf);
 
 #ifdef __cplusplus
