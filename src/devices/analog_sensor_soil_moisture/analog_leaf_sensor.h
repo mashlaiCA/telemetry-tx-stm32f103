@@ -20,11 +20,8 @@ typedef struct {
 } leaf_data_t;
 
 void leaf_wetness_init(void);
-leaf_data_t leaf_wetness_read(void);
+uint16_t leaf_wetness_read(void);
 
-//void leaf_sensor_init(void);
-
-//int16_t leaf_sensor_read_average(void);
 
 #ifdef __cplusplus
 }

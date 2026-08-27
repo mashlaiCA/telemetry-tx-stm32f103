@@ -12,7 +12,7 @@ extern "C"
 void soil_sensor_init(void);
 
 int16_t soil_sensor_read_average(void);
-extern int16_t test_value;//test
+
 
 #ifdef __cplusplus
 }

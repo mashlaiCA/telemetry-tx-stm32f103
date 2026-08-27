@@ -13,6 +13,8 @@
 #define LEAF_RAW_MIN       5    
 #define LEAF_RAW_MAX    4095
 
+ uint16_t wetness_data;
+
 
 static const resistive_probe_t probe = {
     LEAF_PIN_A, LEAF_PIN_B, LEAF_ADC_CH, LEAF_SET_US
@@ -38,13 +40,14 @@ static uint16_t read_averaged(void)
     return (uint16_t)(sum / LEAF_SAMPLES);
 }
 
-leaf_data_t leaf_wetness_read(void)
+uint16_t leaf_wetness_read(void)
 {
-    data.raw = read_averaged();
+    wetness_data = read_averaged();
+    data.raw = wetness_data;
 
     if (data.raw < LEAF_RAW_MIN || data.raw > LEAF_RAW_MAX) {
         data.state = LEAF_FAULT;
-        return data;
+        return wetness_data;
     }
 
 
@@ -53,25 +56,8 @@ leaf_data_t leaf_wetness_read(void)
     else if (data.state == LEAF_WET && data.raw > LEAF_TH_DRY)
         data.state = LEAF_DRY;
 
-    return data;
+    return wetness_data;
 }
 
-/*static int8_t leaf_sensor_id = -1;
 
-void leaf_sensor_init(void)
-{
-   // analog_sensors_init();
-
-    leaf_sensor_id =
-        analog_sensor_add(2, 4090, 1); 
-}
-
-int16_t leaf_sensor_read_average(void)
-{
-    return
-        analog_sensor_read_average(
-            leaf_sensor_id
-        );
-}
-        */
 

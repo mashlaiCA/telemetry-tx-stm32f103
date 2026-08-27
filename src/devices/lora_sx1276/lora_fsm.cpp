@@ -89,21 +89,21 @@ static void lora_state_check(void)
 */
 static void lora_state_tx_wait(void)
 {
-  //  if (system_data.ready_data_creation_flag == 1 && system_data.lora_busy == 0)
-  //  {
+    if (system_data.ready_data_creation_flag == 1 && system_data.lora_busy == 0)
+    {
         if (hal.digitalRead(1) == 0)
         {
             g_lora_state_handler = lora_state_tx;
             system_data.lora_busy = 1;
         }
-   // }
+   }
 }
 static void lora_state_tx(void)
 {
 
     lora_tx_done_flag = 0;
 
-    int state = g_radio->startTransmit("007"); //(system_data.data_string);
+    int state = g_radio->startTransmit(system_data.data_string);
     if (state == RADIOLIB_ERR_NONE)
     {
 

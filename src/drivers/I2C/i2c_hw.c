@@ -38,18 +38,24 @@ I2C_Status_t I2C_Write(uint8_t addr, uint8_t *data, uint8_t len) // Write data t
     {
         if (timeout_has_expired(&i2c_timeout)) // Check for timeout
         {
+
+            I2C1->CR1 |= I2C_CR1_STOP; 
+
             i2c_status_error = i2c_timeout_err_sb_write; // Set error status
             return i2c_error;                            // Return error status
         }
     }
 
     I2C1->DR = addr << 1;               // Send device address with write bit
+
+    timeout_start(&i2c_timeout, i2c_timeout_ms); // Start timeout for address acknowledgment
+
     while (!(I2C1->SR1 & I2C_SR1_ADDR)) // Wait for address acknowledgment flag
     {
-        timeout_start(&i2c_timeout, i2c_timeout_ms); // Start timeout for address acknowledgment
+       
         if (I2C1->SR1 & I2C_SR1_AF)                  // Check for NACK
         {
-            I2C1->SR1 &= ~I2C_SR1_AF;  // Clear NACK flag
+            I2C1->SR1 = ~I2C_SR1_AF;  // Clear NACK flag (// I2C1->SR1 &= ~I2C_SR1_AF; )
             I2C1->CR1 |= I2C_CR1_STOP; // Generate stop condition
 
             i2c_status_error = i2c_nack_addr_write; // Set error status
@@ -57,6 +63,9 @@ I2C_Status_t I2C_Write(uint8_t addr, uint8_t *data, uint8_t len) // Write data t
         }
         if (timeout_has_expired(&i2c_timeout)) // Check for timeout
         {
+
+            I2C1->CR1 |= I2C_CR1_STOP; 
+
             i2c_status_error = i2c_timeout_err_addr_write; // Set error status
             return i2c_error;                              // Return error status
         }
@@ -70,7 +79,7 @@ I2C_Status_t I2C_Write(uint8_t addr, uint8_t *data, uint8_t len) // Write data t
         {
             if (I2C1->SR1 & I2C_SR1_AF) // Check for NACK
             {
-                I2C1->SR1 &= ~I2C_SR1_AF;  // Clear NACK flag
+                I2C1->SR1 = ~I2C_SR1_AF;  // Clear NACK flag (// I2C1->SR1 &= ~I2C_SR1_AF; )
                 I2C1->CR1 |= I2C_CR1_STOP; // Generate stop condition
 
                 i2c_status_error = i2c_nack_txe; // Set error status
@@ -78,6 +87,9 @@ I2C_Status_t I2C_Write(uint8_t addr, uint8_t *data, uint8_t len) // Write data t
             }
             if (timeout_has_expired(&i2c_timeout)) // Check for timeout
             {
+
+                I2C1->CR1 |= I2C_CR1_STOP; 
+
                 i2c_status_error = i2c_timeout_err_txe; // Set error status
                 return i2c_error;                       // Return error status
             }
@@ -90,7 +102,7 @@ I2C_Status_t I2C_Write(uint8_t addr, uint8_t *data, uint8_t len) // Write data t
     {
         if (I2C1->SR1 & I2C_SR1_AF) // Check for NACK
         {
-            I2C1->SR1 &= ~I2C_SR1_AF;  // Clear NACK flag
+            I2C1->SR1 = ~I2C_SR1_AF;  // Clear NACK flag (// I2C1->SR1 &= ~I2C_SR1_AF;)
             I2C1->CR1 |= I2C_CR1_STOP; // Generate stop condition
 
             i2c_status_error = i2c_nack_btf; // Set error status
@@ -98,6 +110,9 @@ I2C_Status_t I2C_Write(uint8_t addr, uint8_t *data, uint8_t len) // Write data t
         }
         if (timeout_has_expired(&i2c_timeout)) // Check for timeout
         {
+
+            I2C1->CR1 |= I2C_CR1_STOP; 
+
             i2c_status_error = i2c_timeout_err_btf; // Set error status
             return i2c_error;                       // Return error status
         }
@@ -105,11 +120,27 @@ I2C_Status_t I2C_Write(uint8_t addr, uint8_t *data, uint8_t len) // Write data t
 
     I2C1->CR1 |= I2C_CR1_STOP; // Generate stop condition
 
+    timeout_start(&i2c_timeout, i2c_timeout_ms); // Start timeout for bus idle
+    while (I2C1->SR2 & I2C_SR2_BUSY)             // Wait for stop condition to complete (bus idle)
+    {
+        if (timeout_has_expired(&i2c_timeout)) // Check for timeout
+        {
+            i2c_status_error = i2c_timeout_err_stop; // Set error status
+            return i2c_error;                        // Return error status
+        }
+    }
+
     return i2c_ok; // Return success status
 }
 
 I2C_Status_t I2C_Read(uint8_t addr, uint8_t *data, uint8_t len) // Read data from I2C device
 {
+
+    if(I2C1->SR2 & I2C_SR2_BUSY){
+        i2c_status_error = i2c_busy;
+        return i2c_busy;
+    }
+
     I2C1->CR1 |= I2C_CR1_ACK;   // Enable ACK for received bytes
     I2C1->CR1 |= I2C_CR1_START; // Generate start condition
 
@@ -118,6 +149,9 @@ I2C_Status_t I2C_Read(uint8_t addr, uint8_t *data, uint8_t len) // Read data fro
     {
         if (timeout_has_expired(&i2c_timeout)) // Check for timeout
         {
+
+            I2C1->CR1 |= I2C_CR1_STOP; 
+
             i2c_status_error = i2c_timeout_err_sb_read; // Set error status
             return i2c_error;                           // Return error status
         }
@@ -129,7 +163,7 @@ I2C_Status_t I2C_Read(uint8_t addr, uint8_t *data, uint8_t len) // Read data fro
     {
         if (I2C1->SR1 & I2C_SR1_AF) // Check for NACK
         {
-            I2C1->SR1 &= ~I2C_SR1_AF;  // Clear NACK flag
+            I2C1->SR1 = ~I2C_SR1_AF;  // Clear NACK flag (// I2C1->SR1 &= ~I2C_SR1_AF; )
             I2C1->CR1 |= I2C_CR1_STOP; // Generate stop condition
 
             i2c_status_error = i2c_nack_addr_read; // Set error status
@@ -138,26 +172,47 @@ I2C_Status_t I2C_Read(uint8_t addr, uint8_t *data, uint8_t len) // Read data fro
 
         if (timeout_has_expired(&i2c_timeout)) // Check for timeout
         {
+
+            I2C1->CR1 |= I2C_CR1_STOP; 
+
             i2c_status_error = i2c_timeout_err_addr_read; // Set error status
             return i2c_error;                             // Return error status
         }
     }
-    (void)I2C1->SR2; // Read SR2 to clear ADDR flag
 
-    for (uint8_t i = 0; i < len; i++) // Read data bytes
+    if (len == 1)
     {
-        timeout_start(&i2c_timeout, i2c_timeout_ms); // Start timeout for RXNE flag
-        while (!(I2C1->SR1 & I2C_SR1_RXNE))          // Wait for RXNE flag
+        I2C1->CR1 &= ~I2C_CR1_ACK;
+        (void)I2C1->SR2;
+        I2C1->CR1 |= I2C_CR1_STOP;
+    }
+    else
+    {
+        (void)I2C1->SR2;
+    }
+
+    for (uint8_t i = 0; i < len; i++)
+    {
+        if (len > 1 && i == len - 1)
         {
-            if (timeout_has_expired(&i2c_timeout)) // Check for timeout
+            I2C1->CR1 &= ~I2C_CR1_ACK;
+            I2C1->CR1 |= I2C_CR1_STOP;
+        }
+
+        timeout_start(&i2c_timeout, i2c_timeout_ms);
+        while (!(I2C1->SR1 & I2C_SR1_RXNE))
+        {
+            if (timeout_has_expired(&i2c_timeout))
             {
-                i2c_status_error = i2c_timeout_err_rxne; // Set error status
-                return i2c_error;                        // Return error status
+                I2C1->CR1 |= I2C_CR1_STOP;
+                i2c_status_error = i2c_timeout_err_rxne;
+                return i2c_error;
             }
         }
-        data[i] = I2C1->DR; // Read data from DR
+        data[i] = I2C1->DR;
     }
-    I2C1->CR1 |= I2C_CR1_ACK; // Re-enable ACK for future receptions
 
-    return i2c_ok; // Return success status
+    I2C1->CR1 |= I2C_CR1_ACK;
+
+    return i2c_ok;
 }

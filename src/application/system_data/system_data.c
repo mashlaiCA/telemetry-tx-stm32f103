@@ -90,7 +90,7 @@ void sensor_update_soil_moisture(system_data_t *data)
 
 void sensor_update_leaf_sensor(system_data_t *data)
 {
-    data->leaf_moisture = leaf_sensor_read_average();
+    data->leaf_moisture = leaf_wetness_read();
 }
 
 void data_creation(system_data_t *data)

@@ -29,6 +29,7 @@ typedef enum
     i2c_nack_addr_read,         // NACK received after sending address during read operation
     i2c_timeout_err_addr_read,  // Timeout error while waiting for address acknowledgment during read operation
     i2c_timeout_err_rxne,       // Timeout error while waiting for receive buffer not empty (RXNE) flag during read operation
+    i2c_timeout_err_stop,       // Timeout error while waiting for stop condition to complete (bus idle) after write
     i2c_error,                  // General I2C error
 
     i2c_count // Total number of I2C status codes (used for array sizing)
