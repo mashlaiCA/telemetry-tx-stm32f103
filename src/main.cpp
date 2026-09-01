@@ -22,8 +22,13 @@
 #include "drivers/external_interrupt/exti_1.h"
 
 #include "devices/ds3231_rtc/ds3231_rtc.h"
+#include "devices/watermark_200ss/watermark_200ss.h"
+
+#include "drivers/tim/tim2_hw.h"//test
+#include "drivers/gpio/gpio_hw.h"//test
+
 #include "drivers/power/sleep_hw.h" //test
-#include "drivers/exti/exti_hw.h" //test
+#include "drivers/exti/exti_hw.h"   //test
 
 #include "devices/ntc/ntc.h"
 
@@ -40,7 +45,9 @@ uint8_t started_lora = 0;
 
 uint16_t count = 1;
 
-char line[26];//============RTC
+char line[26]; //============RTC
+
+char wm_packet[WM_PACKET_LEN];//WM_ss200
 
 int main(void) // Main function
 {
@@ -68,38 +75,39 @@ int main(void) // Main function
   soil_sensor_init();
   ntc_init();
 
-
   lora_fsm_init(&radio);
   analog_sensor_fsm_init();
   uart_init();
 
+  watermark_init();//200ss
+
+ //probe_pin_init();//test timing
  
-
-
-
   //=========ds3231_RTC==================
 
-    ds3231_init();
+  ds3231_init();
 
-     //sleep_debug_enable();   // SWD alive in Stop mode (development only) test
-     //exti0_pa0_init();       // PA0 wakeup from DS3231 SQW test
+  // sleep_debug_enable();   // SWD alive in Stop mode (development only) test
+  // exti0_pa0_init();       // PA0 wakeup from DS3231 SQW test
 
-    if (ds3231_lost_power())
-    {
-        ds3231_time_t t = {
-            .sec = 0, .min = 06, .hour = 13,
-            .day = 5, .date = 28, .month = 8, .year = 26
-        };
-        ds3231_set_time(&t);
-    }
+  if (ds3231_lost_power())
+  {
+    ds3231_time_t t = {
+        .sec = 0, .min = 06, .hour = 13, .day = 5, .date = 28, .month = 8, .year = 26};
+    ds3231_set_time(&t);
+  }
   //=====================================
 
   while (1)
   {
+/*
+    test_wm_100us();//test
+    delay_hw_ms(1);
+*/
     SHT35_FSM_Run();
     analog_sensor_FSM_Run();
     lora_fsm_run();
-    
+
     if (!started)
     {
       timer_set(&system_timeout, 10000);
@@ -111,34 +119,45 @@ int main(void) // Main function
       started = 0; // Reset the started flag to allow the next timeout to start
 
       system_data_run();
-  //=============================
+     // =============================
       ds3231_time_t now;
 
-      if (ds3231_get_time(&now) == i2c_ok){
+      if (ds3231_get_time(&now) == i2c_ok)
+      {
         ds3231_datetime_to_str(&now, line);
         uart_send_string(system_data.data_string);
-        uart_send_uint16_t(temp_c_ntc(1));
         uart_send_string("\n");
+
+        float t = temp_c_ntc(1);
+        watermark_data_t d = watermark_read(t);
+
+        watermark_pack_string(&d, t, wm_packet);
+      
         uart_send_string(line);
-      }else{
+        uart_send_string(wm_packet);
+      }
+      else
+      {
         uart_send_string("error");
       }
-      //=========================  
-    
-      ds3231_set_alarm_in(5);  // wake in 5 seconds
+      //=========================
 
-    /*if(system_data.lora_busy == 0){
-           
-     EXTI->PR = EXTI_PR_PR0;        // clear stale RTC edge
-     EXTI->PR = EXTI_PR_PR1;        // clear stale DIO0 edge
-     EXTI->IMR &= ~EXTI_IMR_MR1;    // mask DIO0 during sleep
-     sleep_enter_stop();
-     EXTI->PR = EXTI_PR_PR1;        // clear edge that arrived while masked
-     EXTI->IMR |= EXTI_IMR_MR1; 
+      //ds3231_set_alarm_in(5); // wake in 5 seconds
+
+      /*if(system_data.lora_busy == 0){
+
+       EXTI->PR = EXTI_PR_PR0;        // clear stale RTC edge
+       EXTI->PR = EXTI_PR_PR1;        // clear stale DIO0 edge
+       EXTI->IMR &= ~EXTI_IMR_MR1;    // mask DIO0 during sleep
+       sleep_enter_stop();
+       EXTI->PR = EXTI_PR_PR1;        // clear edge that arrived while masked
+       EXTI->IMR |= EXTI_IMR_MR1;
+      }
+
+       uart_send_string("wake\r\n");   // first line after wake
+      */
+     
     }
-
-     uart_send_string("wake\r\n");   // first line after wake
-    */
+  
   }
-}
 }

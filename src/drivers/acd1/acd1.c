@@ -5,7 +5,7 @@ void adc1_init(void)
 {
     RCC->APB2ENR |= RCC_APB2ENR_ADC1EN; // Enable ADC1 clock
 
-    RCC->CFGR |= RCC_CFGR_ADCPRE_DIV6; // Set ADC prescaler to 6 == 12 MHz
+    RCC->CFGR &= ~RCC_CFGR_ADCPRE;     // ADCPRE = DIV2 -> 8/2 = 4 MHz
     ADC1->CR2 |= ADC_CR2_ADON;         // Enable ADC1
 
 

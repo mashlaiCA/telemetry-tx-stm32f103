@@ -1,6 +1,7 @@
 #include "ntc.h"
 #include "math.h"
 #include "drivers/gpio/gpio_hw.h"
+#include "drivers/acd1/acd1.h"
 
 #define R_FIXED 10000.0f
 #define R_NOMINAL 10000.0f

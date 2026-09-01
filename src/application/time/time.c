@@ -22,6 +22,10 @@ void delay_ms(uint32_t ms)
    delay_hw_ms(ms);
 }
 
+void wm_delay_us(uint16_t us){
+   wm_delay_hw_us(us);
+}
+
 void delay_us(uint32_t us){
    delay_hw_us(us);
 }

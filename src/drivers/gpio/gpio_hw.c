@@ -28,8 +28,58 @@ void gpio_a_analog_input_init(uint8_t pin)
     GPIOA->CRL |= (0x0 << (pin * 4));  // Set PAx as analog input
 }
 
+void gpio_PBx_analog_input_init(uint8_t pin)   // pin: 0..7
+{
+    GPIOB->CRL &= ~(0xF << (pin * 4));       // analog mode = 0000
+}
+/*
+//============test timing========
+
+void probe_pin_init(void)
+{
+    GPIOB->CRL &= ~(0xFu << 0);  // PB0
+    GPIOB->CRL |=  (0x1u << 0);  // output 10 MHz push-pull
+    GPIOB->BSRR = (1u << (0 + 16)); // LOW
+}
+//=========================
+*/
+
+
 //===============================polarity==============//
 
+
+//=====================WM==================
+
+void gpio_PBx_polarity_init(uint8_t pinB)      
+{
+    uint8_t s = (pinB - 8) * 4;
+    GPIOB->CRH &= ~(0xF << s);
+    GPIOB->CRH |=  (0x2 << s);
+}
+
+void polarity_PBx_fwd(uint8_t pin1, uint8_t pin2){
+    gpio_PBx_polarity_init(pin1);
+    gpio_PBx_polarity_init(pin2);
+    GPIOB -> BSRR = (1 << pin1);
+    GPIOB -> BRR = (1 << pin2);
+}
+
+void polarity_PBx_rev(uint8_t pin1, uint8_t pin2){
+    gpio_PBx_polarity_init(pin1);
+    gpio_PBx_polarity_init(pin2);
+    GPIOB -> BSRR = (1 << pin2);
+    GPIOB -> BRR = (1 << pin1);
+}
+
+
+void polarity_PBx_off(uint8_t pin1, uint8_t pin2){
+    uint8_t s1 = (pin1 - 8) * 4;
+    uint8_t s2 = (pin2 - 8) * 4;
+    GPIOB -> CRH &= ~((0xF << s1) | (0xF << s2));
+    GPIOB -> CRH |= (0x4 << s1) | (0x4 << s2);
+}
+
+//=====================WM==================
 void gpio_A_polarity_init(uint8_t pin1){
 
     GPIOA -> CRL &= ~(0xF << pin1 * 4);
@@ -67,9 +117,6 @@ void gpio_a_led_output_init(uint8_t pin)
     GPIOA->CRL |= (0x1 << (pin * 4));  // Set PAx as output (push-pull)
     GPIOA->BSRR = (1 << (pin));        // Set PAx high (turn off LED)
 }
-
-
-
 
 // Set GPIOA pin low to turn on LED
 void gpio_a_set(uint8_t led_gpio)

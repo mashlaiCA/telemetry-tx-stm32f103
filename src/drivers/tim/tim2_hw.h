@@ -3,6 +3,11 @@
 
 #include "stdint.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 extern volatile uint32_t sys_ms; // System milliseconds counter
 extern volatile uint64_t sys_us; 
 
@@ -27,6 +32,14 @@ void timer_init(void);
 
 void delay_hw_ms(uint32_t ms);
 void delay_hw_us(uint32_t us);
+void wm_delay_hw_us(uint16_t us);
 uint32_t micros_hw(void);
 uint32_t millis_hw(void);
+
+void test_wm_100us(void);
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif 

@@ -46,6 +46,35 @@ void uart_print_int(int value){
     uart_hw_send_byte('\n');
 }
 
+void uart_print_int_raw(int32_t value)
+{
+    char buf[12];
+    int i = 0;
+
+    if (value < 0) { uart_hw_send_byte('-'); value = -value; }
+
+    if (value == 0) { uart_hw_send_byte('0'); return; }
+
+    while (value > 0 && i < (int)sizeof(buf) - 1) {
+        buf[i++] = (value % 10) + '0';
+        value /= 10;
+    }
+    while (i--) uart_hw_send_byte(buf[i]);
+}
+
+void uart_print_float1(float v)
+{
+    if (v < 0.0f) { uart_hw_send_byte('-'); v = -v; }
+
+    int32_t whole = (int32_t)v;
+    int32_t frac  = (int32_t)((v - (float)whole) * 10.0f + 0.5f);
+
+    if (frac >= 10) { whole++; frac = 0; }
+
+    uart_print_int_raw(whole);
+    uart_hw_send_byte('.');
+    uart_hw_send_byte('0' + frac);
+}
 
 void uart_send_uint16_t(uint16_t value) // Send a uint16_t value over UART as a string
 {
@@ -97,3 +126,46 @@ void uart_send_uint16_t2(uint16_t value1,
 
     uart_hw_send_byte('\n'); // Send newline at the end of the line
 }
+//=============================
+char *pack_int(char *p, int32_t value)
+{
+    char buf[12];
+    int i = 0;
+
+    if (value < 0) { *p++ = '-'; value = -value; }
+
+    if (value == 0) {
+        *p++ = '0';
+        return p;
+    }
+
+    while (value > 0 && i < (int)sizeof(buf)) {
+        buf[i++] = (char)('0' + (value % 10));
+        value /= 10;
+    }
+    while (i--) *p++ = buf[i];
+
+    return p;
+}
+
+char *pack_float1(char *p, float v)
+{
+    if (v < 0.0f) { *p++ = '-'; v = -v; }
+
+    int32_t whole = (int32_t)v;
+    int32_t frac  = (int32_t)((v - (float)whole) * 10.0f + 0.5f);
+    if (frac >= 10) { whole++; frac = 0; }
+
+    p = pack_int(p, whole);
+    *p++ = '.';
+    *p++ = (char)('0' + frac);
+
+    return p;
+}
+
+char *pack_str(char *p, const char *s)
+{
+    while (*s) *p++ = *s++;
+    return p;
+}
+

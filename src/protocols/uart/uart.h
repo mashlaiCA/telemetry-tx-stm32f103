@@ -46,9 +46,17 @@ extern "C"
     
     void uart_send_line(const char *str);
 
+    void uart_print_float1(float v);
+
+    void uart_print_int_raw(int32_t value);
+
     void uart_print_int(int value);
     
-    
+    char *pack_int(char *p, int32_t value);
+
+    char *pack_float1(char *p, float v);
+
+    char *pack_str(char *p, const char *s);
                 
 
 #ifdef __cplusplus

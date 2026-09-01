@@ -35,6 +35,7 @@ extern "C"
     uint8_t timer_wait(timeout_t *t);
 
     void delay_ms(uint32_t ms);
+    void wm_delay_us(uint16_t us);
     void delay_us(uint32_t us);
     uint32_t millis_time();
     uint32_t micros_time();

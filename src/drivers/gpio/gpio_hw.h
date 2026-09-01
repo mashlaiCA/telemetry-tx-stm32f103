@@ -4,6 +4,11 @@
 #include "stdint.h"
 #include "stm32f103xb.h"
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file gpioA.h
  * @brief Driver for GPIOA pins on STM32F103xx microcontroller.
@@ -38,11 +43,17 @@ void gpio_B_init_I2C_SDA_SCL(uint8_t pin);
  */
 void gpio_a_analog_input_init(uint8_t pin);
 
-void gpio_SPI_init();
-
-void lora_ctrl_gpio_init();
+void gpio_PBx_analog_input_init(uint8_t pin);
 
 void ntc_gpio_init(void);
+
+void gpio_PBx_polarity_init(uint8_t pinB);
+
+void polarity_PBx_fwd(uint8_t pin1, uint8_t pin2);
+
+void polarity_PBx_rev(uint8_t pin1, uint8_t pin2);
+
+void polarity_PBx_off(uint8_t pin1, uint8_t pin2);
 
 void gpio_A_polarity_init(uint8_t pin1);
 
@@ -79,7 +90,7 @@ void gpio_a_reset(uint8_t led_gpio);
 
 uint8_t gpio_read_pin(GPIO_TypeDef* GPIOx, uint8_t pin);
 
-void gpio_SPI_init(void);
+void gpio_SPI_init(void);//
 void lora_ctrl_gpio_init(void);
 void rst_low(void);
 void rst_high(void);
@@ -87,6 +98,13 @@ void nss_low(void);
 void nss_high(void);
 uint8_t dio0_read(void);
 
+
+void probe_pin_init(void);//test timing
+
 // void reset_pin_1(void);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // 
