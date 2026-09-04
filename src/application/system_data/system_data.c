@@ -10,6 +10,11 @@
 uint16_t count;
 system_data_t system_data = {0};
 
+#define DATA_ALL_READY (DATA_SHT35_READY | DATA_ANALOG_READY)
+
+/* Sensor bits already folded into system_data, held until the payload is built. */
+static uint8_t processed_flags = 0;
+
 void system_data_run(void)
 {
     uint8_t flags;
@@ -19,32 +24,43 @@ void system_data_run(void)
     flags = system_data.ready_sensors_flag;
     __enable_irq();
 
-    if (flags & DATA_SHT35_READY)
+    /* Each sensor is sampled once, when its bit first shows up. */
+    if ((flags & DATA_SHT35_READY) && !(processed_flags & DATA_SHT35_READY))
     {
         sensor_update_SHT35(&system_data);
+        processed_flags |= DATA_SHT35_READY;
     }
 
-    if (flags & DATA_ANALOG_READY)
+    if ((flags & DATA_ANALOG_READY) && !(processed_flags & DATA_ANALOG_READY))
     {
         sensor_update_soil_moisture(&system_data);
         sensor_update_leaf_sensor(&system_data);
+        processed_flags |= DATA_ANALOG_READY;
     }
 
-    /* both ready? create & send */
-    if ((flags & (DATA_SHT35_READY | DATA_ANALOG_READY)) == (DATA_SHT35_READY | DATA_ANALOG_READY))
+    /* The two sensor FSMs finish several loop passes apart, so the bits are
+       latched until both have reported. Clearing them on every call meant the
+       two never overlapped and the payload was never built. */
+    if ((flags & DATA_ALL_READY) != DATA_ALL_READY)
     {
-        data_creation(&system_data);
-        system_data.ready_data_creation_flag = 1;
-        // do not call uart_send_string here; let LoRa FSM perform transmission
+        return;
     }
 
-    /* clear only the bits we processed (atomic) */
-    if (flags)
+    /* Do not rebuild data_string while the LoRa FSM still needs the previous
+       one - it transmits straight out of this buffer. */
+    if (system_data.ready_data_creation_flag != 0 || system_data.lora_busy != 0)
     {
-        __disable_irq();
-        system_data.ready_sensors_flag &= ~flags;
-        __enable_irq();
+        return;
     }
+
+    data_creation(&system_data);
+    system_data.ready_data_creation_flag = 1;
+    processed_flags = 0;
+
+    /* release both sensor FSMs for the next measurement (atomic) */
+    __disable_irq();
+    system_data.ready_sensors_flag &= ~DATA_ALL_READY;
+    __enable_irq();
 }
 
 char *int_to_str(int value, char *str)

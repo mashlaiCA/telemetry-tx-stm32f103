@@ -23,6 +23,7 @@
 
 #include "devices/ds3231_rtc/ds3231_rtc.h"
 #include "devices/watermark_200ss/watermark_200ss.h"
+#include "devices/watermark_200ss/watermark_fsm.h"
 
 #include "drivers/tim/tim2_hw.h"//test
 #include "drivers/gpio/gpio_hw.h"//test
@@ -32,22 +33,23 @@
 
 #include "devices/ntc/ntc.h"
 
+#define REPORT_INTERVAL_MS   15000
+
+
 extern STM32F103RadioLibHal hal;
 
 Module module(&hal, 0, 1, 2, RADIOLIB_NC);
 SX1276 radio(&module);
 
 timeout_t system_timeout; // Timeout structure for LoRa operations
-timeout_t lora_timeout;
-uint8_t timeout_ms;  // Timeout duration in milliseconds
+
+timeout_t boot_delay_timer;
 uint8_t started = 0; // Flag to indicate if the system has started
 uint8_t started_lora = 0;
 
 uint16_t count = 1;
 
 char line[26]; //============RTC
-
-char wm_packet[WM_PACKET_LEN];//WM_ss200
 
 int main(void) // Main function
 {
@@ -66,8 +68,8 @@ int main(void) // Main function
 
   hal.spiBegin();
 
-  timer_set(&system_timeout, 200);
-  while (!timer_wait(&system_timeout))
+  timer_set(&boot_delay_timer, 200);
+  while (!timer_wait(&boot_delay_timer))
     ;
 
   analog_sensors_init();
@@ -79,7 +81,7 @@ int main(void) // Main function
   analog_sensor_fsm_init();
   uart_init();
 
-  watermark_init();//200ss
+  watermark_fsm_init();//200ss - calls watermark_init()
 
  //probe_pin_init();//test timing
  
@@ -98,6 +100,8 @@ int main(void) // Main function
   }
   //=====================================
 
+  timer_set(&system_timeout, REPORT_INTERVAL_MS);
+
   while (1)
   {
 /*
@@ -106,35 +110,26 @@ int main(void) // Main function
 */
     SHT35_FSM_Run();
     analog_sensor_FSM_Run();
+    watermark_fsm_run();
     lora_fsm_run();
 
-    if (!started)
-    {
-      timer_set(&system_timeout, 10000);
-      started = 1;
-    }
+    system_data_run();
 
     if (timer_wait(&system_timeout))
     {
-      started = 0; // Reset the started flag to allow the next timeout to start
+      timer_set(&system_timeout, REPORT_INTERVAL_MS);
 
-      system_data_run();
+      /* ready_sensors_flag is owned by the sensor FSMs and system_data_run();
+         clearing it here dropped measurements that were waiting to be paired. */
      // =============================
       ds3231_time_t now;
 
       if (ds3231_get_time(&now) == i2c_ok)
       {
+        /* Watermark data is measured by watermark_fsm_run() and sent by the
+           LoRa FSM; only the timestamp is echoed here for debugging. */
         ds3231_datetime_to_str(&now, line);
-        uart_send_string(system_data.data_string);
-        uart_send_string("\n");
-
-        float t = temp_c_ntc(1);
-        watermark_data_t d = watermark_read(t);
-
-        watermark_pack_string(&d, t, wm_packet);
-      
         uart_send_string(line);
-        uart_send_string(wm_packet);
       }
       else
       {

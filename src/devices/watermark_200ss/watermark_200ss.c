@@ -13,8 +13,6 @@
 #define WM_ADC_MAX    4095.0f
 
 #define WM_SET_US        15
-#define WM_SAMPLES        3
-#define WM_REST_MS        5
 
 #define WM_R_OPEN    35000.0f
 #define WM_R_SHORT     300.0f
@@ -29,7 +27,7 @@ void watermark_init(void)
     polarity_PBx_off(WM_PIN_A, WM_PIN_B);
 }
 
-static void wm_excite(uint16_t *fwd, uint16_t *rev)
+void watermark_sample(uint16_t *fwd, uint16_t *rev)
 {
     __disable_irq();
 
@@ -46,7 +44,7 @@ static void wm_excite(uint16_t *fwd, uint16_t *rev)
     __enable_irq();
 }
 
-static float wm_resistance(uint16_t fwd, uint16_t rev)
+float watermark_resistance(uint16_t fwd, uint16_t rev)
 {
     float r1 = (float)fwd / WM_ADC_MAX;
     float r2 = (float)rev / WM_ADC_MAX;
@@ -87,6 +85,22 @@ static float wm_to_cb(float res, float tc)
     return cb;
 }
 
+void watermark_classify(watermark_data_t *d, float soil_temp_c)
+{
+    if (d->r_ohm >= WM_R_OPEN || d->r_ohm == 0.0f) {
+        d->status = WM_OPEN;
+        d->cb     = (float)WM_CB_OPEN;
+    }
+    else if (d->r_ohm < WM_R_SHORT) {
+        d->status = WM_SHORT;
+        d->cb     = (float)WM_CB_SHORT;
+    }
+    else {
+        d->status = WM_OK;
+        d->cb     = wm_to_cb(d->r_ohm, soil_temp_c);
+    }
+}
+
 watermark_data_t watermark_read(float soil_temp_c)
 {
     watermark_data_t d = {0};
@@ -94,8 +108,8 @@ watermark_data_t watermark_read(float soil_temp_c)
     uint16_t f = 0, r = 0;
 
     for (uint8_t i = 0; i < WM_SAMPLES; i++) {
-        wm_excite(&f, &r);
-        r_sum += wm_resistance(f, r);
+        watermark_sample(&f, &r);
+        r_sum += watermark_resistance(f, r);
         delay_ms(WM_REST_MS);
     }
 
@@ -103,22 +117,9 @@ watermark_data_t watermark_read(float soil_temp_c)
     d.raw_rev = r;
     d.r_ohm   = r_sum / WM_SAMPLES;
 
-  
-    if (d.r_ohm >= WM_R_OPEN || d.r_ohm == 0.0f) {
-        d.status = WM_OPEN;
-        d.cb     = (float)WM_CB_OPEN;
-    }
-    else if (d.r_ohm < WM_R_SHORT) {
-        d.status = WM_SHORT;
-        d.cb     = (float)WM_CB_SHORT;
-    }
-    else {
-        d.status = WM_OK;
-        d.cb     = wm_to_cb(d.r_ohm, soil_temp_c);
-    }
+    watermark_classify(&d, soil_temp_c);
 
     return d;
-
 }
 
 void watermark_pack_string(const watermark_data_t *d, float ntc_temp, char *out)
