@@ -2,16 +2,19 @@
 #include "drivers/spi/spi_LL.h"
 
 
-void spi_start(void) 
+/* Initializes SPI1 through the driver. */
+void spi_start(void)
 {
-    spi_init(); // Initialize the SPI peripheral using the low-level driver function
+    spi_init(); // Master, mode 0, 8-bit, MSB first, 125 kHz
 }
 
+/* Configuration sanity check through the driver. */
 uint8_t spi_check(void){
-    return spi_check_hw(); // Check the hardware status of the SPI peripheral using the low-level driver function and return the result
+    return spi_check_hw(); // 0 = OK, 1..6 = first failed check
 }
 
-uint8_t spi_send(uint8_t data) 
+/* One byte exchange through the driver. */
+uint8_t spi_send(uint8_t data)
 {
-    return spi_transfer(data); // Send a byte of data over SPI and return the received response using the low-level driver function
+    return spi_transfer(data); // Received byte, or 0 on timeout
 }

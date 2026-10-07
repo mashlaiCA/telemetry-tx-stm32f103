@@ -1,7 +1,8 @@
 #include "sht35_status.h"
 
 
-SHT35_Status_t get_last_sht35_error(void) // Function to retrieve the last SHT35 error status
+/* Getter for the last SHT35 processing status. */
+SHT35_Status_t get_last_sht35_error(void)
 {
-    return sht35_status; // Return the current value of the global error status variable
+    return sht35_status; // Updated by SHT35_CRC_Check() and SHT35_Calculate()
 }

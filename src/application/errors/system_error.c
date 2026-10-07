@@ -1,16 +1,18 @@
 #include "system_error.h"
 
-System_Error_t system_error_flags = system_error_none; // Initialize system error flags to none
+System_Error_t system_error_flags = system_error_none; // No error recorded at startup
 
-void set_system_error(System_Error_t error) // Function to set the system error flags
+/* Latches the first error; later errors are ignored. */
+void set_system_error(System_Error_t error)
 {
-    if (system_error_flags == system_error_none) // Only set the system error if there are no existing errors to avoid overwriting previous error states
+    if (system_error_flags == system_error_none) // Nothing recorded yet
     {
-        system_error_flags = error; // Set the system error flags to the specified error
+        system_error_flags = error; // Keep this one as the root cause
     }
 }
 
+/* Getter for the latched error. */
 System_Error_t get_system_error(void)
 {
-    return system_error_flags; // Return the current system error flags
+    return system_error_flags; // First recorded error or system_error_none
 }

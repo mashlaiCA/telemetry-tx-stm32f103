@@ -1,15 +1,15 @@
 #include "timeout_hw.h"
 #include "../tim/tim2_hw.h"
 
-// Start a timeout by recording the current system time and setting the timeout duration
+/* Arms a timeout: remembers the current time and the duration. */
 void timeout_start(timeout_t *t, uint32_t timeout_ms)
 {
-   t->start_ms = sys_ms;       // Record the current system time in milliseconds
-   t->timeout_ms = timeout_ms; // Set the timeout duration in milliseconds
+   t->start_ms = sys_ms;       // Current time in milliseconds
+   t->timeout_ms = timeout_ms; // Duration in milliseconds
 }
 
-// Check if the timeout has expired by comparing the elapsed time with the timeout duration
+/* Expired when the elapsed time reaches the duration. */
 uint8_t timeout_has_expired(timeout_t *t)
 {
-   return ((uint32_t)(sys_ms - t->start_ms) >= t->timeout_ms); // Check if the timeout has expired
+   return ((uint32_t)(sys_ms - t->start_ms) >= t->timeout_ms); // Unsigned difference is correct across sys_ms wrap-around
 }

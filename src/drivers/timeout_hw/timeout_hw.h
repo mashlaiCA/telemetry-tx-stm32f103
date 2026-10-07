@@ -1,37 +1,43 @@
+/**
+ * @file  timeout_hw.h
+ * @brief Non-blocking software timeouts based on the sys_ms millisecond clock (TIM2).
+ * This file provides:
+ * 1. The timeout_t structure (start time + duration).
+ * 2. timeout_start() - arm a timeout.
+ * 3. timeout_has_expired() - poll it.
+ * Elapsed time is computed as an unsigned difference, so sys_ms wrap-around
+ * (every ~49.7 days) is handled for durations below 2^32 ms.
+ */
+
 #ifndef TIMEOUT_HW_H
 #define TIMEOUT_HW_H
 
 #include "stdint.h"
 
 /**
- * @file timeout_hw.h
- * @brief Hardware timeout management for STM32F103xx microcontroller.
- * This module provides functions to start a timeout and check if it has expired.
- */
-
-/**
- * @brief Structure to hold timeout information
- * This structure contains the start time in milliseconds and the timeout duration in milliseconds.
+ * @brief Software timeout state.
+ * Holds the sys_ms value when the timeout was armed and its duration.
  */
 typedef struct
 {
-  uint32_t start_ms;   // Start time in milliseconds
-  uint32_t timeout_ms; // Timeout duration in milliseconds
+  uint32_t start_ms;   // sys_ms value when the timeout was armed
+  uint32_t timeout_ms; // Duration in milliseconds
 } timeout_t;
 
 /**
- * @brief Start a timeout.
- * This function initializes the timeout structure with the current system time and the specified timeout duration.
- * @param t Pointer to the timeout_t structure to initialize.
- * @param timeout_ms Timeout duration in milliseconds.
+ * @brief Arms a timeout.
+ * This function performs the following steps:
+ * 1. Stores the current sys_ms as the start time.
+ * 2. Stores the duration.
+ * @param t          Timeout to arm.
+ * @param timeout_ms Duration in milliseconds; 0 makes the timeout expire immediately.
  */
 void timeout_start(timeout_t *t, uint32_t timeout_ms);
 
 /**
- * @brief Check if the timeout has expired.
- * This function checks if the current system time has exceeded the start time plus the timeout duration.
- * @param t Pointer to the timeout_t structure to check.
- * @return returns 1 if the timeout has expired, 0 otherwise.
+ * @brief Checks whether a timeout has expired.
+ * @param t Timeout armed with timeout_start().
+ * @return 1 if at least timeout_ms milliseconds have passed since timeout_start(), 0 otherwise.
  */
 uint8_t timeout_has_expired(timeout_t *t);
 

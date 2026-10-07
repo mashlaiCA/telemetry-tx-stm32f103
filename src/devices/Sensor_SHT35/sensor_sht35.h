@@ -1,7 +1,19 @@
+/**
+ * @file  sensor_sht35.h
+ * @brief Device-level interface of the SHT35 air temperature/humidity sensor (I2C address 0x44).
+ * This file provides:
+ * 1. I2C transactions used by the SHT35 FSM: start measurement, read result, soft reset.
+ *    Each one returns the status of that exact transaction.
+ * 2. Getters for the last converted temperature and humidity.
+ * Conversion and CRC checking live in the low-level driver (drivers/sht35/sht35.h);
+ * sequencing and error handling live in sht35_fsm.h.
+ */
+
 #ifndef SENSOR_SHT35_H
 #define SENSOR_SHT35_H
 
 #include "stdint.h"
+#include "drivers/I2C/i2c_hw.h" // I2C_Status_t: every transaction returns its own status
 
 #ifdef __cplusplus
 extern "C"
@@ -9,51 +21,50 @@ extern "C"
 #endif
 
     /**
-     * @file sensor_sht35.h
-     * @brief Header file for SHT35 sensor interface.
-     * This module provides function prototypes for interfacing with the SHT35 temperature and humidity sensor.
-     * It includes functions for writing commands to the sensor, reading data from the sensor, and retrieving calculated temperature and humidity values. The functions are designed to be used in conjunction with the SHT35
-     * state machine defined in sht35_fsm.h and the error status management in sht35_status.h. This header file abstracts the low-level I2C communication details, allowing higher-level code to interact with the SHT35 sensor in a more straightforward manner.
-     * The functions defined in this header file are intended to be called by the state functions in the SHT35 FSM to perform the necessary operations for starting measurements, reading data, and handling sensor restarts.
-     * The implementation of these functions should handle the specific I2C communication protocol required by the SHT35 sensor, including sending the correct commands and reading the appropriate number of bytes for temperature and humidity data.
-     * The temperature and humidity values returned by the respective functions are expected to be in hundredths of degrees Celsius and hundredths of percent, respectively, to allow for precise representation of the sensor  readings.
+     * @brief Sends the single-shot measurement command to the SHT35.
+     * This function performs the following steps:
+     * 1. Writes command 0x2400 (high repeatability, clock stretching disabled) to address 0x44.
+     * The conversion then takes up to 15 ms; the FSM waits 20 ms before reading.
+     * @return i2c_ok if the command was acknowledged;
+     *         i2c_busy if the bus could not be acquired;
+     *         i2c_error on NACK or timeout (the exact cause is in i2c_status_error).
      */
+    I2C_Status_t I2C_Write_Sensor_SHT35(void); // Returns the status of this transaction, not the shared global one
 
     /**
-     * @brief Function prototype for writing commands to the SHT35 sensor.
-     * This function sends the appropriate command to the SHT35 sensor to initiate a measurement.
-     * It should use the I2C communication protocol to send the command bytes to the sensor's I2C address.
-     * The specific command to start a measurement (e.g., high repeatability, clock stretching disabled) should be defined in the implementation of this function.
-     * This function is typically called in the state function responsible for starting the sensor measurement in the SHT35 FSM.
+     * @brief Reads the 6-byte measurement result into the driver buffer buf[].
+     * This function performs the following steps:
+     * 1. Reads T MSB, T LSB, T CRC, RH MSB, RH LSB, RH CRC from address 0x44.
+     * @return i2c_ok if all 6 bytes were received;
+     *         i2c_busy if the bus could not be acquired;
+     *         i2c_error on NACK or timeout (the exact cause is in i2c_status_error).
      */
-    void I2C_Write_Sensor_SHT35();
+    I2C_Status_t I2C_Read_Sensor_SHT35(void); // Returns the status of this transaction, not the shared global one
 
     /**
-     * @brief Function prototype for reading data from the SHT35 sensor.
-     * This function reads the raw data from the SHT35 sensor after a measurement has been initiated.
-     * It should use the I2C communication protocol to read the appropriate number of bytes from the sensor's I2C address, which includes raw temperature and humidity values along with their CRC checksums.
-     */
-    void I2C_Read_Sensor_SHT35();
-
-    /**
-     * @brief Function prototype for retrieving the calculated temperature value from the SHT35 sensor.
-     * This function returns the calculated temperature value in hundredths of degrees Celsius, which is derived from the raw data read from the sensor. The calculation of the temperature value should be performed in the appropriate state function of the SHT35 FSM after the raw data has been read and the CRC check has been performed.
-     * @return The calculated temperature value in hundredths of degrees Celsius.
+     * @brief Returns the last converted air temperature.
+     * The value is in whole degrees Celsius (fraction truncated). Negative
+     * temperatures are clamped to 0 because the type is unsigned.
+     * @return Temperature in degC, 0..125.
      */
     uint16_t temperatureSHT35(void);
 
     /**
-     * @brief Function prototype for retrieving the calculated humidity value from the SHT35 sensor.
-     * This function returns the calculated humidity value in hundredths of percent, which is derived from the raw data read from the sensor. The calculation of the humidity value should be performed in the appropriate state function of the SHT35 FSM after the raw data has been read and the CRC check has been performed.
-     * @return The calculated humidity value in hundredths of percent.
+     * @brief Returns the last converted relative humidity.
+     * The value is in whole percent (fraction truncated).
+     * @return Relative humidity in %RH, 0..100.
      */
     uint16_t humiditySHT35(void);
 
     /**
-     * @brief Function prototype for restarting the SHT35 sensor.
-     * This function sends a soft reset command to the SHT35 sensor to restart it.
+     * @brief Sends the soft reset command to the SHT35.
+     * This function performs the following steps:
+     * 1. Writes command 0x30A2 to address 0x44. The sensor needs up to 1.5 ms to restart.
+     * @return i2c_ok if the command was acknowledged;
+     *         i2c_busy if the bus could not be acquired;
+     *         i2c_error on NACK or timeout.
      */
-    void I2C_Restart_Sensor_SHT35();
+    I2C_Status_t I2C_Restart_Sensor_SHT35(void); // Returns the status of this transaction, not the shared global one
 
 #ifdef __cplusplus
 }
